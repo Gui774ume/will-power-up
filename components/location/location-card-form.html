@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
+        <script src="https://p.trellocdn.com/power-up.min.js"></script>
+        <link rel="stylesheet" href="location-card-form.css">
+        <title>Card location settings</title>
+    </head>
+    <body style="overflow: hidden">
+        <div id="card_location_settings">
+            <div class="navigation-buttons-wrapper">
+                <button id="place" class="navigation-mode-button mod-primary" onclick="onSelectNavigationMode('place')"><div class="location-icon navigation-mode-icon"></div></button>
+                <button id="search" class="navigation-mode-button" onclick="onSelectNavigationMode('search')"><div class="search-icon navigation-mode-icon"></div></button>
+                <button id="car" class="navigation-mode-button" onclick="onSelectNavigationMode('car')"><div class="car-icon navigation-mode-icon"></div></button>
+                <button id="bus" class="navigation-mode-button" onclick="onSelectNavigationMode('bus')"><div class="bus-icon navigation-mode-icon"></div></button>
+                <button id="walk" class="navigation-mode-button" onclick="onSelectNavigationMode('walk')"><div class="walk-icon navigation-mode-icon"></div></button>
+                <button id="bike" class="navigation-mode-button" onclick="onSelectNavigationMode('bike')"><div class="bike-icon navigation-mode-icon"></div></button>
+                <button id="plane" class="navigation-mode-button" onclick="onSelectNavigationMode('plane')" style="margin-right: 0px;"><div class="plane-icon navigation-mode-icon"></div></button>
+            </div>
+            <div class="navigation-buttons-wrapper">
+                <input type="text" id="origin" name="origin" autocomplete="off" placeholder="Origin (ex: 620 8th avenue)" class="location-input">
+                <input type="text" id="destination" name="destination" autocomplete="off" placeholder="Destination (ex: 20 W 34th St)" class="location-input" disabled>
+            </div>
+            <div class="navigation-buttons-wrapper">
+                <button id="paperclip" class="navigation-mode-button"><div class="paperclip-icon navigation-mode-icon"></div></button>
+                <button id="satellite_view" class="navigation-mode-button"><div class="satellite-view-icon navigation-mode-icon"></div></button>
+                <button id="reverse" class="navigation-mode-button" disabled><div class="reverse-icon navigation-mode-icon"></div></button>
+                <button id="add_stop" class="navigation-mode-button" disabled><div class="plus-icon navigation-mode-icon"></div></button>
+                <button id="remove_stop" class="navigation-mode-button" disabled><div class="minus-icon navigation-mode-icon"></div></button>
+            </div>
+            <div id="stops">
+            </div>
+            <div style="margin-top: 10px;">
+                <button id="remove_google_map" class="mod-danger" style="margin-top: 0;">Hide</button>
+                <button id="ok_google_map" class="mod-primary" style="margin-top: 0;">Show</button>
+            </div>
+        </div>
+        <script src="location-card-form.js"></script>
+    </body>
+</html>
