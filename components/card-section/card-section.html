@@ -1,0 +1,49 @@
+<html lang="en-US">
+    <head>
+        <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
+        <script src="https://p.trellocdn.com/power-up.min.js"></script>
+        <link rel="stylesheet" href="../shared.css">
+        <link rel="stylesheet" href="./card-section.css">
+        <link rel="stylesheet" href="../poll/poll-card-section.css">
+        <title>Will Power-Up</title>
+    </head>
+    <body style="overflow: hidden">
+        <div id="card_section_wrapper">
+            <div id="location_section_wrapper" class="card-section">
+                <div class="card-section-header">
+                    <div class="card-section-title">
+                        <div class="map-icon card-section-icon"></div>
+                        <h2>Location</h2>
+                    </div>
+                    <button id="location_section_header_button">
+                        <div class="pen-to-square-icon card-section-icon"></div>
+                    </button>
+                </div>
+                <iframe
+                        id="google_map_iframe"
+                        width="512"
+                        height="400"
+                        style="border:0"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src=""
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <div id="polls_section_wrapper" class="card-section">
+                <div class="card-section-header">
+                    <div class="card-section-title">
+                        <div class="poll-icon card-section-icon"></div>
+                        <h2>Polls</h2>
+                    </div>
+                    <button id="polls_section_header_button">
+                        <div class="plus-icon card-section-icon"></div>
+                    </button>
+                </div>
+                <div id="polls_section"></div>
+            </div>
+        </div>
+        <script src="./card-section.js" type="module"></script>
+        <script src="../location/location-card-section.js" type="module"></script>
+        <script src="../poll/poll-card-section.js" type="module"></script>
+    </body>
+</html>

@@ -1,3 +1,5 @@
+import { sanitizeInput } from "../../service/utils.js";
+
 let t = TrelloPowerUp.iframe();
 var Promise = TrelloPowerUp.Promise;
 
@@ -46,6 +48,33 @@ let enableDestination = function() {
     addStopButton.disabled = false;
     removeStopButton.disabled = false;
     reverseButton.disabled = false;
+}
+
+let generateStopInput = function(i, description) {
+    let removeStopIcon = document.createElement("span");
+    removeStopIcon.role = "img";
+    removeStopIcon.classList.add("input-icon");
+    removeStopIcon.classList.add("trash-icon");
+    removeStopIcon.id = `remove_stop${i}`;
+
+    let removeStopWrapper = document.createElement("div");
+    removeStopWrapper.classList.add("trash-icon-wrapper");
+    removeStopWrapper.appendChild(removeStopIcon);
+
+    let stopInput = document.createElement("input");
+    stopInput.id = `stop${i}`;
+    stopInput.type = "text";
+    stopInput.autocomplete = "off";
+    stopInput.placeholder = `Stop ${i+1} (ex: 18 W 4th St")`;
+    stopInput.classList.add("location-input");
+    stopInput.value = description;
+
+    let inputWrapper = document.createElement("div");
+    inputWrapper.classList.add("input-wrapper");
+    inputWrapper.appendChild(removeStopWrapper);
+    inputWrapper.appendChild(stopInput);
+
+    return inputWrapper;
 }
 
 let fetchFormData = function(t) {
@@ -120,15 +149,9 @@ let fetchFormData = function(t) {
                                         return;
                                     }
                                     stops.forEach((elem, i) => {
-                                        let stopInput = document.createElement("input");
-                                        stopInput.id = "stop"+i;
-                                        stopInput.type = "text";
-                                        stopInput.autocomplete = "off";
-                                        stopInput.placeholder = 'Stop (ex: 18 W 4th St")';
-                                        stopInput.classList.add("location-input");
-                                        stopInput.value = elem.description;
+                                        let stopInput = generateStopInput(i, elem.description);
                                         stopsWrapper.appendChild(stopInput);
-                                        setupInputField("stop"+i);
+                                        setupInputField("stop"+i, i);
                                     })
                                 })
                                 .then(function() {
@@ -170,6 +193,8 @@ let onSelectNavigationMode = function(mode) {
             fetchFormData(t);
         });
 }
+// make onSelectNavigationMode reachable from html
+window.onSelectNavigationMode = onSelectNavigationMode;
 
 let resolveSearchPopupCurrentValue = function(t, searchInputID) {
     let defaultValue = "Search query";
@@ -323,7 +348,7 @@ let searchPopup = function(t, searchInputID){
         });
 };
 
-let setupInputField = function(searchInputID) {
+let setupInputField = function(searchInputID, stopIndex=0) {
     document.getElementById(searchInputID).addEventListener('click', function(){
         if (document.getElementById(searchInputID).disabled) {
             return;
@@ -353,10 +378,32 @@ let setupInputField = function(searchInputID) {
                 }
             });
     })
+
+    if (stopIndex >= 0) {
+        document.getElementById("remove_"+searchInputID).addEventListener('click', function () {
+            if (removeStopButton.disabled) {
+                // nothing to do
+                return;
+            }
+            t.get('card', 'shared', 'map_stops')
+                .then(function(stops) {
+                    if (stops === undefined) {
+                        return;
+                    }
+                    if (stops.length > stopIndex) {
+                        stops.splice(stopIndex, 1);
+                        t.set('card', 'shared', 'map_stops', stops)
+                            .then(function () {
+                                return fetchFormData(t);
+                            });
+                    }
+                });
+        });
+    }
 };
 
-setupInputField('origin');
-setupInputField('destination');
+setupInputField('origin', -1);
+setupInputField('destination', -1);
 
 addStopButton.addEventListener("click", function() {
     if (addStopButton.disabled) {
@@ -512,10 +559,6 @@ paperclipButton.addEventListener('click', function() {
                 });
         });
 })
-
-let sanitizeInput = function (input) {
-    return input.replaceAll(' ', '%20').replaceAll('+', '%2B')
-}
 
 let buildSearchQueryLink = function (elem) {
     if (elem === undefined || elem.description === undefined || elem.description === "") {

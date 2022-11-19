@@ -1,0 +1,220 @@
+.input-icon {
+    background-color: #5a5a5a;
+    display: inline-block;
+    flex-shrink: 0;
+    line-height: 1;
+    width: 16px;
+    height: 16px;
+}
+
+.input-wrapper input {
+    margin-bottom: 0px;
+}
+
+.input-wrapper button {
+    margin-top: 0px;
+    margin-right: 0px;
+    width: 100%;
+}
+
+.input-wrapper {
+    -webkit-box-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 100%;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    max-width: 100%;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    vertical-align: top;
+    pointer-events: auto;
+    margin-bottom: 12px;
+}
+
+.input-icon-wrapper {
+    margin-right: 8px;
+    margin-left: 8px;
+    cursor: pointer;
+    display: block;
+}
+
+.input-checkbox input {
+    margin-right: 10px;
+    margin-left: 10px;
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.input-checkbox label {
+    line-height: 20px;
+    margin: 0px 0px 0px 10px;
+    font-weight: normal;
+    font-size: 14px;
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+}
+
+.input-checkbox-container {
+    width: 100%;
+}
+
+/* On mouse-over, add a grey background color */
+.input-checkbox-container:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.input-checkbox-container input:checked ~ .checkmark {
+    background-color: #0079BF;
+}
+
+/* When the checkbox is checked, add a grey background */
+.input-checkbox-container input:disabled ~ .checkmark {
+    background-color: #858585;
+    cursor: not-allowed;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.input-checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.input-checkbox-container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 4px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.poll-icon {
+     -webkit-mask: url(../svg/bars-progress-solid.svg) no-repeat center;
+     mask: url(../svg/bars-progress-solid.svg) no-repeat center;
+ }
+
+.trash-icon {
+    -webkit-mask: url(../svg/trash-solid.svg) no-repeat center;
+    mask: url(../svg/trash-solid.svg) no-repeat center;
+}
+
+.cross-icon {
+    -webkit-mask: url(../svg/xmark-solid.svg) no-repeat center;
+    mask: url(../svg/xmark-solid.svg) no-repeat center;
+}
+
+.location-icon {
+    -webkit-mask: url(../svg/location-dot-solid.svg) no-repeat center;
+    mask: url(../svg/location-dot-solid.svg) no-repeat center;
+}
+
+.search-icon {
+    -webkit-mask: url(../svg/magnifying-glass-solid.svg) no-repeat center;
+    mask: url(../svg/magnifying-glass-solid.svg) no-repeat center;
+}
+
+.car-icon {
+    -webkit-mask: url(../svg/car-solid.svg) no-repeat center;
+    mask: url(../svg/car-solid.svg) no-repeat center;
+}
+
+.bus-icon {
+    -webkit-mask: url(../svg/bus-solid.svg) no-repeat center;
+    mask: url(../svg/bus-solid.svg) no-repeat center;
+}
+
+.bike-icon {
+    -webkit-mask: url(../svg/person-biking-solid.svg) no-repeat center;
+    mask: url(../svg/person-biking-solid.svg) no-repeat center;
+}
+
+.walk-icon {
+    -webkit-mask: url(../svg/person-walking-solid.svg) no-repeat center;
+    mask: url(../svg/person-walking-solid.svg) no-repeat center;
+}
+
+.plane-icon {
+    -webkit-mask: url(../svg/plane-solid.svg) no-repeat center;
+    mask: url(../svg/plane-solid.svg) no-repeat center;
+}
+
+.plus-icon {
+    -webkit-mask: url(../svg/plus-solid.svg) no-repeat center;
+    mask: url(../svg/plus-solid.svg) no-repeat center;
+}
+
+.minus-icon {
+    -webkit-mask: url(../svg/minus-solid.svg) no-repeat center;
+    mask: url(../svg/minus-solid.svg) no-repeat center;
+}
+
+.reverse-icon {
+    -webkit-mask: url(../svg/arrows-rotate-solid.svg) no-repeat center;
+    mask: url(../svg/arrows-rotate-solid.svg) no-repeat center;
+}
+
+.satellite-view-icon {
+    -webkit-mask: url(../svg/image-regular.svg) no-repeat center;
+    mask: url(../svg/image-regular.svg) no-repeat center;
+}
+
+.paperclip-icon {
+    -webkit-mask: url(../svg/paperclip-solid.svg) no-repeat center;
+    mask: url(../svg/paperclip-solid.svg) no-repeat center;
+}
+
+.magnifying-glass-icon {
+    -webkit-mask: url(../svg/magnifying-glass-solid.svg) no-repeat center;
+    mask: url(../svg/magnifying-glass-solid.svg) no-repeat center;
+}
+
+.sort-icon {
+    -webkit-mask: url(../svg/arrow-down-wide-short-solid.svg) no-repeat center;
+    mask: url(../svg/arrow-down-wide-short-solid.svg) no-repeat center;
+}
+
+.pen-icon {
+    -webkit-mask: url(../svg/pen-solid.svg) no-repeat center;
+    mask: url(../svg/pen-solid.svg) no-repeat center;
+}
+
+.pen-to-square-icon {
+    -webkit-mask: url(../svg/pen-to-square-regular.svg) no-repeat center;
+    mask: url(../svg/pen-to-square-regular.svg) no-repeat center;
+}
+
+.map-icon {
+    -webkit-mask: url(../svg/map-location-dot-solid.svg) no-repeat center;
+    mask: url(../svg/map-location-dot-solid.svg) no-repeat center;
+}

@@ -1,8 +1,9 @@
-<html>
+<html lang="en-US">
     <head>
         <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
         <script src="https://p.trellocdn.com/power-up.min.js"></script>
         <link rel="stylesheet" href="location-card-form.css">
+        <link rel="stylesheet" href="../shared.css">
         <title>Card location settings</title>
     </head>
     <body style="overflow: hidden">
@@ -29,11 +30,11 @@
             </div>
             <div id="stops">
             </div>
-            <div style="margin-top: 10px;">
-                <button id="remove_google_map" class="mod-danger" style="margin-top: 0;">Hide</button>
-                <button id="ok_google_map" class="mod-primary" style="margin-top: 0;">Show</button>
+            <div class="input-wrapper" style="margin-top: 10px; margin-bottom: 0px;">
+                <button id="ok_google_map" class="mod-primary">Show</button>
+                <button id="remove_google_map" class="mod-danger" style="margin-left: 10px;">Hide</button>
             </div>
         </div>
-        <script src="location-card-form.js"></script>
+        <script src="location-card-form.js" type="module"></script>
     </body>
 </html>

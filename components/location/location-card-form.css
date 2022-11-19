@@ -8,6 +8,13 @@
     width: 20px;
 }
 
+.trash-icon-wrapper {
+    margin-right: 14px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: block;
+}
+
 .mod-primary .navigation-mode-icon {
     background-color: white;
 }
@@ -16,71 +23,6 @@
     padding: 7px;
     margin-top: 0;
     margin-right: 3px;
-}
-
-.location-icon {
-    -webkit-mask: url(../../svg/location-dot-solid.svg) no-repeat center;
-    mask: url(../../svg/location-dot-solid.svg) no-repeat center;
-}
-
-.search-icon {
-    -webkit-mask: url(../../svg/magnifying-glass-solid.svg) no-repeat center;
-    mask: url(../../svg/magnifying-glass-solid.svg) no-repeat center;
-}
-
-.car-icon {
-    -webkit-mask: url(../../svg/car-solid.svg) no-repeat center;
-    mask: url(../../svg/car-solid.svg) no-repeat center;
-}
-
-.bus-icon {
-    -webkit-mask: url(../../svg/bus-solid.svg) no-repeat center;
-    mask: url(../../svg/bus-solid.svg) no-repeat center;
-}
-
-.bike-icon {
-    -webkit-mask: url(../../svg/person-biking-solid.svg) no-repeat center;
-    mask: url(../../svg/person-biking-solid.svg) no-repeat center;
-}
-
-.walk-icon {
-    -webkit-mask: url(../../svg/person-walking-solid.svg) no-repeat center;
-    mask: url(../../svg/person-walking-solid.svg) no-repeat center;
-}
-
-.plane-icon {
-    -webkit-mask: url(../../svg/plane-solid.svg) no-repeat center;
-    mask: url(../../svg/plane-solid.svg) no-repeat center;
-}
-
-.plus-icon {
-    -webkit-mask: url(../../svg/plus-solid.svg) no-repeat center;
-    mask: url(../../svg/plus-solid.svg) no-repeat center;
-}
-
-.minus-icon {
-    -webkit-mask: url(../../svg/minus-solid.svg) no-repeat center;
-    mask: url(../../svg/minus-solid.svg) no-repeat center;
-}
-
-.reverse-icon {
-    -webkit-mask: url(../../svg/arrows-rotate-solid.svg) no-repeat center;
-    mask: url(../../svg/arrows-rotate-solid.svg) no-repeat center;
-}
-
-.satellite-view-icon {
-    -webkit-mask: url(../../svg/image-regular.svg) no-repeat center;
-    mask: url(../../svg/image-regular.svg) no-repeat center;
-}
-
-.paperclip-icon {
-    -webkit-mask: url(../../svg/paperclip-solid.svg) no-repeat center;
-    mask: url(../../svg/paperclip-solid.svg) no-repeat center;
-}
-
-.magnifying-glass-icon {
-    -webkit-mask: url(../../svg/magnifying-glass-solid.svg) no-repeat center;
-    mask: url(../../svg/magnifying-glass-solid.svg) no-repeat center;
 }
 
 .location-input {

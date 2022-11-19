@@ -1,14 +1,21 @@
 # Will's Power Up
 
-This project is a custom Power-Up for my Trello boards. This Power-Up adds the following feature:
-- The ability to store and visualize location and direction data for cards:
+This project is a custom Power-Up for my Trello boards. This Power-Up adds the following features:
+- Store and visualize location and direction data for cards:
 
 ![Location component](documentation/images/location_component.png)
 
+- Create polls:
+
+![Location component](documentation/images/poll_component.png)
+
+- Add a duration to a card:
+
+![Location component](documentation/images/duration_component.png)
+
 ## TODO
 
-- The ability to sync the due date of a card to a Google Calendar (+ event duration)
-- The ability to create Google Calendar events from the items of a checklist that contain a [date | time | duration | location] pattern
+- The ability to sync the due date of a card to a Google Calendar
 - The ability to periodically archive the cards of a list to another board, into a newly generated list
 - The ability to import the events of a Google Calendar to the board
 - The ability to query the weather for the provided locations of a card

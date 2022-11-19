@@ -1,0 +1,55 @@
+<html lang="en-US">
+    <head>
+        <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
+        <script src="https://p.trellocdn.com/power-up.min.js"></script>
+        <link rel="stylesheet" href="poll-form.css">
+        <link rel="stylesheet" href="../shared.css">
+        <title>Add a poll 2</title>
+    </head>
+    <body style="overflow: hidden">
+        <div id="poll_form">
+            <div>
+                <div class="input-wrapper">
+                    <input type="text"
+                           placeholder="What are we voting on ?"
+                           name="poll_question"
+                           id="poll_question">
+                </div>
+                <div class="input-wrapper">
+                    <input type="text"
+                           placeholder="Option 1"
+                           name="option_1"
+                           id="option_1">
+                </div>
+                <div class="input-wrapper">
+                    <input type="text"
+                           placeholder="Option 2"
+                           name="option_2"
+                           id="option_2">
+                </div>
+                <div id="other_options_wrapper">
+                </div>
+                <div class="input-wrapper">
+                    <button id="add_option">Add option</button>
+                </div>
+                <div class="input-checkbox input-wrapper">
+                    <label class="input-checkbox-container">Allow voters to edit poll
+                        <input type="checkbox" id="voters_can_edit_poll" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                <div class="input-checkbox input-wrapper">
+                    <label class="input-checkbox-container">Allow multiple votes per person
+                        <input type="checkbox" id="multiple_votes">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                <div class="input-wrapper" style="margin-bottom: 0px;">
+                    <button id="done" class="mod-primary" disabled>Done</button>
+                    <button id="delete" class="mod-danger" style="margin-left: 10px">Delete</button>
+                </div>
+            </div>
+        </div>
+        <script src="poll-form.js"></script>
+    </body>
+</html>
