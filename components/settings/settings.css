@@ -1,0 +1,48 @@
+.settings-top-section {
+    padding-bottom: 10px; border-bottom: 1px solid #dfe1e6;
+}
+
+.settings-section {
+    margin-top: 10px;
+    padding-bottom: 10px; border-bottom: 1px solid #dfe1e6;
+}
+
+.settings-bottom-section {
+    margin-top: 10px;
+}
+
+.trash-icon-wrapper {
+    margin-right: 14px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: block;
+}
+
+.trash-icon-wrapper span {
+    cursor: pointer;
+}
+
+.account-elem {
+    -webkit-box-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 100%;
+    -webkit-box-pack: justify;
+    justify-content: start;
+    max-width: 100%;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    vertical-align: top;
+    pointer-events: auto;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.account-elem:hover {
+    background-color: #091e4214;
+}
+
+.account-elem em {
+    font-size: 12px;
+}

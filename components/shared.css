@@ -218,3 +218,28 @@
     -webkit-mask: url(../svg/map-location-dot-solid.svg) no-repeat center;
     mask: url(../svg/map-location-dot-solid.svg) no-repeat center;
 }
+
+.star-icon {
+    -webkit-mask: url(../svg/star-regular.svg) no-repeat center;
+    mask: url(../svg/star-regular.svg) no-repeat center;
+}
+
+.star-full-icon {
+    -webkit-mask: url(../svg/star-solid.svg) no-repeat center;
+    mask: url(../svg/star-solid.svg) no-repeat center;
+}
+
+.open-link-icon {
+    -webkit-mask: url(../svg/up-right-from-square-solid.svg) no-repeat center;
+    mask: url(../svg/up-right-from-square-solid.svg) no-repeat center;
+}
+
+.download-icon {
+    -webkit-mask: url(../svg/download-solid.svg) no-repeat center;
+    mask: url(../svg/download-solid.svg) no-repeat center;
+}
+
+.video-icon {
+    -webkit-mask: url(../svg/video-solid.svg) no-repeat center;
+    mask: url(../svg/video-solid.svg) no-repeat center;
+}

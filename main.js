@@ -1,10 +1,11 @@
 import { WillPowerUpAppKey, WillPowerUpAppName } from './constants.js';
-import { getToken } from "./service/auth.js";
+import { getTrelloToken } from "./service/auth.js";
 import { shouldShowCardSection } from "./service/sections.js";
 
 import { getDurationButton } from "./components/duration/duration-button.js";
 import { getDurationBadge } from "./components/duration/duration-badge.js";
 import { getLocationBadge } from "./components/location/location-badge.js";
+import { getCalendarBadge } from "./components/calendar/calendar.js";
 
 /* global TrelloPowerUp */
 var Promise = TrelloPowerUp.Promise;
@@ -56,7 +57,7 @@ TrelloPowerUp.initialize({
         return new Promise(function(resolve) {
             isGoogleAPIKeyReady(t)
                 .then(function (googleAPIKeyReady) {
-                    getToken(t)
+                    getTrelloToken(t)
                         .then(function(userToken) {
                             let buttons = [];
 
@@ -107,8 +108,11 @@ TrelloPowerUp.initialize({
                                     callback: function (t, options) {
                                         return t.popup({
                                             title: `Authorize ${WillPowerUpAppName}`,
-                                            url: './components/authorize/authorize.html',
+                                            url: './components/authorize-trello/authorize.html',
                                             height: 120,
+                                            args: {
+                                                callback: "poll_creation",
+                                            },
                                         });
                                     },
                                 });
@@ -119,6 +123,19 @@ TrelloPowerUp.initialize({
                                 icon: './svg/clock-regular.svg',
                                 text: 'Duration',
                                 callback: getDurationButton,
+                            });
+
+                            // add calendar button
+                            buttons.push({
+                                icon: './svg/calendar-regular.svg',
+                                text: 'Sync with Calendar',
+                                callback: function (t, options) {
+                                    return t.popup({
+                                        title: `Sync with Google Calendar`,
+                                        url: './components/calendar/calendar-form.html',
+                                        height: 120,
+                                    });
+                                },
                             });
 
                             return resolve(buttons);
@@ -167,7 +184,14 @@ TrelloPowerUp.initialize({
                             if (locationBadge !== null) {
                                 badges.push(locationBadge);
                             }
-                            resolve(badges);
+
+                            getCalendarBadge(t)
+                                .then(function(calendarBadge) {
+                                    if (calendarBadge !== null) {
+                                        badges.push(calendarBadge);
+                                    }
+                                    resolve(badges);
+                                });
                         });
                 });
         });

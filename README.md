@@ -7,15 +7,18 @@ This project is a custom Power-Up for my Trello boards. This Power-Up adds the f
 
 - Create polls:
 
-![Location component](documentation/images/poll_component.png)
+![Poll component](documentation/images/poll_component.png)
 
 - Add a duration to a card:
 
-![Location component](documentation/images/duration_component.png)
+![Duration component](documentation/images/duration_component.png)
+
+- 2-way sync of the name, description, location and due date with a Google Calendar event
+
+![Calendar component](documentation/images/calendar_component.png)
 
 ## TODO
 
-- The ability to sync the due date of a card to a Google Calendar
 - The ability to periodically archive the cards of a list to another board, into a newly generated list
 - The ability to import the events of a Google Calendar to the board
 - The ability to query the weather for the provided locations of a card

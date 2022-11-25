@@ -2,19 +2,38 @@
     <head>
         <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
         <script src="https://p.trellocdn.com/power-up.min.js"></script>
+        <link rel="stylesheet" href="settings.css">
+        <link rel="stylesheet" href="../shared.css">
         <title>Settings</title>
     </head>
     <body>
         <div id="settings">
-            <div style="padding-bottom: 10px; border-bottom: 1px solid #dfe1e6;">
-                <p>Google API Key:</p>
-                <input type="password" id="google_api_key" name="google_api_key" autocomplete="off">
-                <button id="show_google_api_key" style="margin-top: 0;">Show Google API Key</button>
-                <button id="save" class="mod-primary" style="margin-top: 0;">Save</button>
+            <div class="settings-top-section">
+                <p>Google Accounts</p>
+                <div id="google_accounts_list" style="margin-bottom: 0;">
+                </div>
+                <div class="input-wrapper" style="margin-bottom: 0; margin-top: 10px;">
+                    <button id="add_google_account">Add a Google Account</button>
+                </div>
             </div>
-            <div style="margin-top: 10px;">
-                <p>Locations and directions:</p>
-                <button id="google_maps_autocomplete" style="margin-top: 0;">Enable Google Maps autocomplete</button>
+            <div id="google_calendars_section" class="settings-section">
+                <p>Starred Google Calendars</p>
+                <div id="google_calendars_list" style="margin-bottom: 0;">
+                </div>
+            </div>
+            <div class="settings-section">
+                <p>Google API Key</p>
+                <input type="password" id="google_api_key" name="google_api_key" autocomplete="off">
+                <div class="input-wrapper" style="margin-bottom: 0;">
+                    <button id="show_google_api_key" style="margin-top: 0; min-width: 60%; margin-right: 10px;">Show Google API Key</button>
+                    <button id="save" class="mod-primary" style="margin-top: 0;">Save</button>
+                </div>
+            </div>
+            <div class="settings-bottom-section">
+                <p>Locations and directions</p>
+                <div class="input-wrapper" style="margin-bottom: 0;">
+                    <button id="google_maps_autocomplete" style="margin-top: 0;">Enable Google Maps autocomplete</button>
+                </div>
             </div>
         </div>
         <script src="settings.js"></script>

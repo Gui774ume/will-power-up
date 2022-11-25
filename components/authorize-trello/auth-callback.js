@@ -1,10 +1,10 @@
-import { getTokenInfo } from "../../service/api.js";
+import { getTrelloTokenInfo } from "../../service/api.js";
 
 let params = new URLSearchParams(window.location.hash.substring(1));
 let token = params.get('token');
 if (token !== undefined && token.length > 0) {
     // check if the token is valid
-    getTokenInfo(token)
+    getTrelloTokenInfo(token)
         .then(function (tokenInfo) {
             // all good the token is valid
             if (window.opener) {
@@ -14,4 +14,6 @@ if (token !== undefined && token.length > 0) {
             }
             window.close();
         });
+} else {
+    window.close();
 }

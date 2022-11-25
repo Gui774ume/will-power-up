@@ -1,7 +1,5 @@
-import { getTokenInfo } from "./api.js";
-
-// getToken returns the token for the current user if it exists
-export const getToken = function (t) {
+// getTrelloToken returns the token for the current user if it exists
+export const getTrelloToken = function (t) {
     return new Promise(function(resolve, reject) {
         t.get('member', 'private', 'token')
             .then(function(token) {
