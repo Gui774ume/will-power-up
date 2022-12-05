@@ -6,10 +6,18 @@
         <link rel="stylesheet" href="../shared.css">
         <title>Settings</title>
     </head>
-    <body>
+    <body style="overflow: hidden;">
         <div id="settings">
             <div class="settings-top-section">
-                <p>Google Accounts</p>
+                <h5>Authorize with Trello</h5>
+                <p>This Power-Up requires access to Trello in order to modify this board. Access will be requested when needed but you can also authorize access globally here:</p>
+                <div class="input-wrapper" style="margin-bottom: 0;">
+                    <button id="authorize_button" style="margin-top: 10px;">Authorize with Trello</button>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h5>Google Accounts</h5>
+                <p>List of all the Google Accounts currently in use by the Power-Up:</p>
                 <div id="google_accounts_list" style="margin-bottom: 0;">
                 </div>
                 <div class="input-wrapper" style="margin-bottom: 0; margin-top: 10px;">
@@ -17,25 +25,49 @@
                 </div>
             </div>
             <div id="google_calendars_section" class="settings-section">
-                <p>Starred Google Calendars</p>
+                <h5>Starred Google Calendars</h5>
+                <p>List of starred Google Calendars. This list will show up as shortcuts throughout the Power-Up:</p>
                 <div id="google_calendars_list" style="margin-bottom: 0;">
+                </div>
+                <div class="input-wrapper" style="margin-bottom: 0; margin-top: 10px;">
+                    <button id="add_starred_google_account">Add a Google Calendar</button>
                 </div>
             </div>
             <div class="settings-section">
-                <p>Google API Key</p>
-                <input type="password" id="google_api_key" name="google_api_key" autocomplete="off">
+                <h5>Google Calendar Importer</h5>
+                <p>The Power-Up can import the events from a Google Calendar to a list as cards. It will import (or keep in sync) up to 500 events at a time but you can configure below how far in the future these events should be queried:</p>
+                <div class="input-wrapper" style="margin-bottom: 0;">
+                    <input type="text" id="google_calendar_sync_time_limit" name="google_calendar_sync_time_limit" placeholder="Time limit" autocomplete="off">
+                </div>
+            </div>
+            <div class="settings-section">
+                <h5>Google API Key</h5>
+                <p>The Power-Up requires a Google API Key to access Google Calendar, Google Maps and Google People apis. You need to grant the following APIs to your key: <b>Google Calendar API, Maps Embed API, Maps Javascript API, People API, Places API</b>. Consider configuring the Application restrictions to "<b>HTTP referrers</b>" and the Website Restrictions to the domain hosting the Power-Up. Provide the API key below:</p>
+                <input type="password" id="google_api_key" name="google_api_key" placeholder="Google API key"  autocomplete="off">
                 <div class="input-wrapper" style="margin-bottom: 0;">
                     <button id="show_google_api_key" style="margin-top: 0; min-width: 60%; margin-right: 10px;">Show Google API Key</button>
                     <button id="save" class="mod-primary" style="margin-top: 0;">Save</button>
                 </div>
             </div>
-            <div class="settings-bottom-section">
-                <p>Locations and directions</p>
+            <div class="settings-section">
+                <h5>Locations and directions</h5>
+                <p>The location widget will help you find and configure a location (or save directions instructions) for your cards. To help you find the places your care about, the Power-Up leverages Google Maps autocomplete feature. However, this feature is billed by Google. You can disable it here to make sure you won't have to pay anything:</p>
                 <div class="input-wrapper" style="margin-bottom: 0;">
                     <button id="google_maps_autocomplete" style="margin-top: 0;">Enable Google Maps autocomplete</button>
                 </div>
             </div>
+            <div class="settings-bottom-section">
+                <h5>Card archiver</h5>
+                <p>The list selected below should be the "Done" list of your board. In other words, the list to which you move the tasks that you have completed.</p>
+                <div class="input-wrapper" style="margin-bottom: 0;">
+                    <input type="text" id="card_archiver_done_list" name="destination_board" placeholder="Done list" autocomplete="off">
+                </div>
+                <p style="margin-top: 10px;">Every month, the Power-Up will archive the completed tasks of the previous month to your archive board that you can select below:</p>
+                <div class="input-wrapper" style="margin-bottom: 0;">
+                    <input type="text" id="card_archiver_destination_board" name="destination_board" placeholder="Destination board" autocomplete="off">
+                </div>
+            </div>
         </div>
-        <script src="settings.js"></script>
+        <script src="settings.js" type="module"></script>
     </body>
 </html>

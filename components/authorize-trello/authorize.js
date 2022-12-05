@@ -1,6 +1,12 @@
 import { WillPowerUpAppKey, WillPowerUpAppName } from '../../constants.js';
 import { sanitizeInput } from "../../service/utils.js";
-import { preparePullCalendarEventData } from "../calendar/calendar.js";
+import {
+    jumpAndDeleteSyncedCalendarEventsFromList,
+    prepareDeleteCalendarEvent,
+    preparePullCalendarEventData,
+    prepareSyncCalendarList,
+    prepareDeleteAttachment,
+} from "../calendar/calendar.js";
 import { CALENDAR_DOC, PEOPLE_DOC } from "../google-account-chooser/account-helper.js";
 
 let t = TrelloPowerUp.iframe({
@@ -89,6 +95,34 @@ let renderPage = function() {
                                     height: 120,
                                 });
                             })
+                        break;
+                    case "sync_calendar_list":
+                        prepareSyncCalendarList(t, t.arg('emailHint'), t.arg('calendar'))
+                            .then(function() {});
+                        break;
+                    case "settings":
+                        return t.popup({
+                            title: 'Settings',
+                            url: '../settings/settings.html',
+                            height: 200,
+                        });
+                    case "delete_synced_calendar_events_from_list":
+                        jumpAndDeleteSyncedCalendarEventsFromList(t, t.arg('syncedCalendar'), t.arg('list'))
+                            .then(function() {});
+                        break;
+                    case "delete_calendar_event":
+                        prepareDeleteCalendarEvent(t, t.arg('syncedCalendar'))
+                            .then(function() {
+                                return t.popup({
+                                    title: `Sync with Google Calendar`,
+                                    url: '../calendar/calendar-form.html',
+                                    height: 120,
+                                });
+                            });
+                        break;
+                    case "delete_card_attachment":
+                        prepareDeleteAttachment(t, t.arg('cardID'), t.arg('attachmentID'))
+                            .then(function() {});
                         break;
                 }
             });

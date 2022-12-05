@@ -8,9 +8,11 @@ export const resetCardSectionHeight = function() {
     shouldShowCardSection(t)
         .then(function(yes) {
             if (yes) {
-                t.sizeTo("#card_section_wrapper");
+                t.sizeTo("#card_section_wrapper").catch(function() {
+                    t.sizeTo(1).catch(function() {});
+                });
             } else {
-                t.sizeTo(1);
+                t.sizeTo(1).catch(function() {});
             }
         });
 };

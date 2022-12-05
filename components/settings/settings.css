@@ -1,14 +1,17 @@
 .settings-top-section {
     padding-bottom: 10px; border-bottom: 1px solid #dfe1e6;
+    text-align: justify;
 }
 
 .settings-section {
     margin-top: 10px;
     padding-bottom: 10px; border-bottom: 1px solid #dfe1e6;
+    text-align: justify;
 }
 
 .settings-bottom-section {
     margin-top: 10px;
+    text-align: justify;
 }
 
 .trash-icon-wrapper {

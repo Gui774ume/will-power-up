@@ -1,12 +1,17 @@
 import { WillPowerUpGoogleOAuthClientID } from "../../constants.js";
 import { CALENDAR_DOC, getGoogleAccountToken, PEOPLE_DOC } from "./account-helper.js";
 import {
-    addGoogleMeetToEvent,
-    chooseCalendar,
+    toggleCalendarEventMeeting,
+    chooseCalendarAndCreateEvent,
+    chooseCalendarAndStarrCalendar,
+    chooseCalendarAndSyncCalendarList,
     createCalendarEvent,
-    deleteCalendarEvent,
     patchCalendarEvent,
+    prepareDeleteCalendarEvent,
+    prepareFetchCardSyncedCalendarsFromAttachments,
     preparePullCalendarEventData,
+    prepareSyncCalendarList,
+    updateCalendarEventResponse,
 } from "../calendar/calendar.js";
 
 // googleScopes define the scopes required for the Power-Up
@@ -247,11 +252,17 @@ let triggerCallback = function(t, selectedEmail) {
     }
 
     switch (callback) {
-        case "calendar_chooser":
-            chooseCalendar(t, selectedEmail);
+        case "choose_calendar_and_create_event":
+            chooseCalendarAndCreateEvent(t, selectedEmail);
+            break;
+        case "choose_calendar_and_sync_calendar_list":
+            chooseCalendarAndSyncCalendarList(t, selectedEmail);
+            break;
+        case "choose_calendar_and_starr_calendar":
+            chooseCalendarAndStarrCalendar(t, selectedEmail);
             break;
         case "delete_calendar_event":
-            deleteCalendarEvent(t, t.arg('syncedCalendar'))
+            prepareDeleteCalendarEvent(t, t.arg('syncedCalendar'))
                 .then(function() {
                     return t.popup({
                         title: `Sync with Google Calendar`,
@@ -260,8 +271,8 @@ let triggerCallback = function(t, selectedEmail) {
                     });
                 });
             break;
-        case "add_calendar_conference":
-            addGoogleMeetToEvent(t, t.arg('syncedCalendar'))
+        case "toggle_calendar_event_meeting":
+            toggleCalendarEventMeeting(t, t.arg('syncedCalendar'), t.arg('shouldAdd'))
                 .then(function() {
                     return t.popup({
                         title: `Sync with Google Calendar`,
@@ -280,7 +291,7 @@ let triggerCallback = function(t, selectedEmail) {
                     });
                 })
             break;
-        case "patch_calendar":
+        case "patch_calendar_event":
             patchCalendarEvent(t, t.arg('syncedCalendar'))
                 .then(function() {
                     // nothing to do, jump back to the calendar form popup
@@ -291,8 +302,12 @@ let triggerCallback = function(t, selectedEmail) {
                     });
                 });
             break;
-        case "sync_calendar":
+        case "create_calendar_event":
             createCalendarEvent(t, t.arg('emailHint'), t.arg('calendar'));
+            break;
+        case "sync_calendar_list":
+            prepareSyncCalendarList(t, t.arg('emailHint'), t.arg('calendar'))
+                .then(function() {});
             break;
         case "settings":
             return t.popup({
@@ -300,5 +315,24 @@ let triggerCallback = function(t, selectedEmail) {
                 url: '../settings/settings.html',
                 height: 200,
             });
+        case "fetch_card_synced_calendars_from_attachments":
+            t.card('all')
+                .then(async function(card) {
+                    await prepareFetchCardSyncedCalendarsFromAttachments(t, card)
+                        .then(function(newCalendars) {
+                            return t.popup({
+                                title: `Sync with Google Calendar`,
+                                url: '../calendar/calendar-form.html',
+                                height: 120,
+                            });
+                        });
+                });
+            break;
+        case "update_calendar_event_response":
+            updateCalendarEventResponse(t, t.arg('syncedCalendar'), t.arg('attendees'))
+                .then(function() {
+                    t.closePopup();
+                })
+            break;
     }
 };

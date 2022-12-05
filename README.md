@@ -13,16 +13,18 @@ This project is a custom Power-Up for my Trello boards. This Power-Up adds the f
 
 ![Duration component](documentation/images/duration_component.png)
 
-- 2-way sync of the name, description, location and due date with a Google Calendar event
+- 2-way sync of the name, description, location, Google Meet, response status (with note) and due date with a Google Calendar event
 
 ![Calendar component](documentation/images/calendar_component.png)
 
+- Every month, all the cards in a configurable "Done" list can be automatically moved to another board, into a newly generated list, labeled by date. This feature requires that the user authorizes access to the Trello API, a button was added in the settings section of the Power-Up.
+- A new "List action" was introduced so that you can pull all upcoming Google Calendar events to the list. The number of days to fetch from your calendar can be configured from the settings page. 
+
+![Import Calendar Events component](documentation/images/import_calendar_events_component.png)
+
 ## TODO
 
-- The ability to periodically archive the cards of a list to another board, into a newly generated list
-- The ability to import the events of a Google Calendar to the board
-- The ability to query the weather for the provided locations of a card
-
+- Integration with Google Contacts to interact with Calendar events and show attendees bios.
 
 ## Getting started
 
@@ -44,3 +46,5 @@ We recommend you apply the following restrictions to your API key:
 - Website restrictions: `gui774ume.github.io` (or your own domain)
 - API restrictions:
   - The location and direction feature requires at least the `Maps Embed API`. If you want to enable the location autocomplete feature, add `Maps Javascript API` and `Places API` (monitor your usage, Google will make you pay for the autocomplete feature). You can disable the autocomplete feature from the settings of the Power-Up.
+  - The calendar features require access to the `Google Calendar API`
+  - The contact features require access to the `People API`

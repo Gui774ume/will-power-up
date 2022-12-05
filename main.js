@@ -3,9 +3,11 @@ import { getTrelloToken } from "./service/auth.js";
 import { shouldShowCardSection } from "./service/sections.js";
 
 import { getDurationButton } from "./components/duration/duration-button.js";
-import { getDurationBadge } from "./components/duration/duration-badge.js";
-import { getLocationBadge } from "./components/location/location-badge.js";
-import { getCalendarBadge } from "./components/calendar/calendar.js";
+import { getDurationBadge, getDurationDetailBadge } from "./components/duration/duration-badge.js";
+import { getLocationBadge, getLocationDetailBadge } from "./components/location/location-badge.js";
+import { getCalendarDetailBadges, onCalendarAttachmentSync } from "./components/calendar/calendar.js";
+import { moveCardToArchives } from "./components/card-mover/cards-mover.js";
+import { CALENDAR_DOC, PEOPLE_DOC } from "./components/google-account-chooser/account-helper.js";
 
 /* global TrelloPowerUp */
 var Promise = TrelloPowerUp.Promise;
@@ -22,12 +24,21 @@ let isGoogleAPIKeyReady = function(t) {
     })
 }
 
-TrelloPowerUp.initialize({
+// Google API service
+let googleAPIScript = document.createElement('script');
+let googleAPIServiceLoaded = false;
+let googleAPIServiceInitialized = false;
+googleAPIScript.src = 'https://apis.google.com/js/api.js';
+googleAPIScript.onload = function() {
+    googleAPIServiceLoaded = true;
+};
+document.body.appendChild(googleAPIScript);
 
-    'card-back-section': function(t, options){
-        return new Promise(function(resolve) {
+TrelloPowerUp.initialize({
+    'card-back-section': function (t, options) {
+        return new Promise(function (resolve) {
             shouldShowCardSection(t)
-                .then(function(yes) {
+                .then(function (yes) {
                     if (yes) {
                         resolve({
                             title: 'Will',
@@ -45,20 +56,44 @@ TrelloPowerUp.initialize({
         });
     },
 
-    'show-settings': function(t, options){
+    'show-settings': function (t, options) {
         return t.popup({
             title: 'Settings',
             url: './components/settings/settings.html',
-            height: 200,
+            height: 1792,
+        });
+    },
+
+    'board-buttons': function(t, options) {
+        return new Promise(async function(resolve) {
+            await isGoogleAPIKeyReady(t)
+                .then(async function (apiKeyReady) {
+                    if (apiKeyReady && googleAPIServiceLoaded && !googleAPIServiceInitialized) {
+                        await gapi.load('client', async function () {
+                            await t.get('board', 'shared', 'google_api_key')
+                                .then(async function (key) {
+                                    if (key !== undefined) {
+                                        await gapi.client.init({
+                                            apiKey: key,
+                                            discoveryDocs: [PEOPLE_DOC, CALENDAR_DOC],
+                                        });
+                                        googleAPIServiceInitialized = true;
+                                    }
+                                });
+                        });
+                    }
+                });
+
+            resolve([]);
         });
     },
 
     'card-buttons': function (t, options) {
-        return new Promise(function(resolve) {
+        return new Promise(function (resolve) {
             isGoogleAPIKeyReady(t)
                 .then(function (googleAPIKeyReady) {
                     getTrelloToken(t)
-                        .then(function(userToken) {
+                        .then(function (userToken) {
                             let buttons = [];
 
                             // add Location button
@@ -128,7 +163,7 @@ TrelloPowerUp.initialize({
                             // add calendar button
                             buttons.push({
                                 icon: './svg/calendar-regular.svg',
-                                text: 'Sync with Calendar',
+                                text: 'Calendar',
                                 callback: function (t, options) {
                                     return t.popup({
                                         title: `Sync with Google Calendar`,
@@ -145,25 +180,41 @@ TrelloPowerUp.initialize({
     },
 
     "card-badges": function (t, options) {
-        return new Promise(function(resolve) {
-            t.get('card', 'shared', 'map_origin')
-                .then(function(origin) {
-                    t.get('card', 'shared', 'duration')
-                        .then(function (duration) {
-                            let badges = [];
-                            if (origin !== undefined && origin.description !== '') {
-                                badges.push({
-                                    text: "",
-                                    icon: './svg/map-location-dot-solid.svg',
-                                    color: null,
+        return new Promise(async function (resolve) {
+            await isGoogleAPIKeyReady(t)
+                .then(async function(apiKeyReady) {
+                    if (apiKeyReady && googleAPIServiceInitialized) {
+                        // check if we need to sync the card calendar data from the "Google Calendar Event" attachment of the card
+                        await onCalendarAttachmentSync(t);
+                    }
+                });
+
+            let badges = [{
+                dynamic: function () {
+                    t.card('all')
+                        .then(function (card) {
+                            t.list('all')
+                                .then(function (list) {
+                                    // only the first card in the list is allowed to move cards to the destination list
+                                    if (card.id === list.cards[0].id) {
+                                        moveCardToArchives(t, list);
+                                    }
                                 });
-                            }
-                            if (duration !== undefined && duration.value > 0) {
-                                badges.push({
-                                    text: duration.name.replace().replaceAll(" minutes", "min").replaceAll(" hour", "h").replaceAll(" hours", "h"),
-                                    icon: './svg/clock-regular.svg',
-                                    color: null,
-                                });
+                        });
+                    return {
+                        refresh: 120,
+                    };
+                },
+            }];
+            getLocationBadge(t)
+                .then(function (locationBadge) {
+                    if (locationBadge !== null) {
+                        badges.push(locationBadge);
+                    }
+                    getDurationBadge(t)
+                        .then(function (durationBadge) {
+                            if (durationBadge !== null) {
+                                badges.push(durationBadge);
                             }
                             resolve(badges);
                         });
@@ -172,29 +223,48 @@ TrelloPowerUp.initialize({
     },
 
     "card-detail-badges": function (t, opts) {
-        return new Promise(function(resolve) {
+        return new Promise(async function (resolve) {
             let badges = [];
-            getDurationBadge(t)
-                .then(function(durationBadge) {
+            await getDurationDetailBadge(t)
+                .then(function (durationBadge) {
                     if (durationBadge !== null) {
                         badges.push(durationBadge);
                     }
-                    getLocationBadge(t)
-                        .then(function(locationBadge) {
-                            if (locationBadge !== null) {
-                                badges.push(locationBadge);
-                            }
-
-                            getCalendarBadge(t)
-                                .then(function(calendarBadge) {
-                                    if (calendarBadge !== null) {
-                                        badges.push(calendarBadge);
-                                    }
-                                    resolve(badges);
-                                });
-                        });
                 });
+
+            await getLocationDetailBadge(t)
+                .then(function (locationBadge) {
+                    if (locationBadge !== null) {
+                        badges.push(locationBadge);
+                    }
+                });
+
+            await getCalendarDetailBadges(t, googleAPIServiceInitialized)
+                .then(function (calendarBadges) {
+                    if (calendarBadges !== null) {
+                        calendarBadges.forEach(function(badge) {
+                            badges.push(badge);
+                        });
+                    }
+                });
+
+            resolve(badges);
         });
+    },
+
+    "list-actions": function (t) {
+        return [
+            {
+                text: "Import Calendar events",
+                callback: function (t) {
+                    return t.popup({
+                        title: `Import Google Calendar events`,
+                        url: './components/calendar/calendar-action.html',
+                        height: 120,
+                    });
+                },
+            },
+        ];
     },
 }, {
     appKey: WillPowerUpAppKey,

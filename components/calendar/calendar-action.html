@@ -1,0 +1,22 @@
+<html lang="en-US">
+    <head>
+        <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
+        <script src="https://p.trellocdn.com/power-up.min.js"></script>
+        <link rel="stylesheet" href="calendar-action.css">
+        <link rel="stylesheet" href="../shared.css">
+        <title>Import Google Calendar Events</title>
+    </head>
+    <body style="overflow: hidden">
+        <div id="calendar_sync_wrapper" class="calendar-list">
+                <div id="calendar_list"></div>
+                <div id="starred_calendars_list_wrapper">
+                    <em id="starred_calendars_message"></em>
+                    <div id="starred_calendars_list"></div>
+                </div>
+                <div class="input-wrapper" style="margin-bottom: 0; margin-top: 10px;">
+                    <button id="add_google_calendar">Import events from a Google Calendar</button>
+                </div>
+        </div>
+        <script src="calendar-action.js" type="module"></script>
+    </body>
+</html>

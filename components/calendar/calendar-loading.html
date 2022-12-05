@@ -1,0 +1,23 @@
+<html lang="en-US">
+    <head>
+        <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
+        <script src="https://p.trellocdn.com/power-up.min.js"></script>
+        <link rel="stylesheet" href="calendar-loading.css">
+        <link rel="stylesheet" href="../shared.css">
+        <title>Loading</title>
+    </head>
+    <body style="overflow: hidden">
+        <div id="loader_wrapper">
+            <div>
+                <p id="header_msg" style="margin-bottom: 5px;"></p>
+            </div>
+            <div class="input-wrapper" style="margin-bottom: 0;">
+                <div class="loader"></div>
+            </div>
+            <div>
+                <p style="margin-bottom: 5px;">( <span id="current_index"></span> / <span id="out_of_count"></span> )</p>
+            </div>
+        </div>
+        <script src="calendar-loading.js" type="module"></script>
+    </body>
+</html>

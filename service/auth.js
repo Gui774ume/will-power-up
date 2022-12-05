@@ -13,7 +13,17 @@ export const getTrelloToken = function (t) {
                     resolve(undefined);
                 }
 
-                resolve(token);
+                // check that the token is valid
+                getTrelloTokenInfo(token)
+                    .then(function(tokenInfo) {
+                        // all good
+                        console.log("yellow", tokenInfo)
+                        resolve(token);
+                    })
+                    .catch(function(resp) {
+                        console.log("failed", resp)
+                        resolve(undefined);
+                    });
             });
     });
 };

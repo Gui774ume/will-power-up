@@ -22,7 +22,7 @@ export const getSpotlightedLocation = function(t) {
     });
 };
 
-export const getLocationBadge = function(t) {
+export const getLocationDetailBadge = function(t) {
     return new Promise(function(resolve) {
         getSpotlightedLocation(t)
             .then(function(location) {
@@ -43,4 +43,21 @@ export const getLocationBadge = function(t) {
                 }
             });
     });
+};
+
+export const getLocationBadge = function(t) {
+    return new Promise(function(resolve) {
+        t.get('card', 'shared', 'map_origin')
+            .then(function(origin) {
+                if (origin !== undefined && origin.description !== '') {
+                    resolve({
+                        text: "",
+                        icon: './svg/map-location-dot-solid.svg',
+                        color: null,
+                    });
+                } else {
+                    resolve(null);
+                }
+            });
+        });
 };

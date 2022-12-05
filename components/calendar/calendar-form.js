@@ -1,8 +1,13 @@
 import { CALENDAR_DOC, PEOPLE_DOC } from "../google-account-chooser/account-helper.js";
 import {
-    addGoogleMeetToEvent,
-    deleteCalendarEvent, patchCalendarEvent, preparePullCalendarEventData,
-    syncCalendarFromStarredCalendar
+    generateCalendarAttachment,
+    patchCalendarEvent, prepareDeleteAttachment,
+    prepareDeleteCalendarEvent,
+    prepareFetchCardSyncedCalendarsFromAttachments,
+    preparePullCalendarEventData,
+    syncCalendarFromStarredCalendar,
+    toggleCalendarEventMeeting,
+    toggleStarredGoogleCalendar,
 } from "./calendar.js";
 
 let t = TrelloPowerUp.iframe();
@@ -22,15 +27,15 @@ googleAPIScript.src = 'https://apis.google.com/js/api.js';
 googleAPIScript.onload = function() {
     gapi.load('client', async function() {
         googleAPIReady = true;
-        maybeRenderPage();
+        await maybeRenderPage();
     });
 };
 document.body.appendChild(googleAPIScript);
 
-let maybeRenderPage = function() {
+let maybeRenderPage = async function() {
     if (googleAPIReady && trelloReady) {
         if (!googleAPIInitialized) {
-            t.get('board', 'shared', 'google_api_key')
+            await t.get('board', 'shared', 'google_api_key')
                 .then(async function (key) {
                     await gapi.client.init({
                         apiKey: key,
@@ -41,22 +46,48 @@ let maybeRenderPage = function() {
         }
         renderPage();
     }
-}
+};
 
 let fetchCardSyncedCalendars = function() {
     return new Promise(function(resolve) {
         t.get('card', 'private', 'synced_calendars')
             .then(async function(calendars) {
                 let out = [];
-                if (calendars === undefined) {
-                    return resolve(out);
-                }
+                if (calendars === undefined || calendars.length === 0) {
+                    // check in the card attachments if there is a linked calendar
+                    await t.card('all')
+                        .then(async function(card) {
+                            if (card.attachments === undefined) {
+                                card.attachments = [];
+                            }
 
-                for (const syncedCalendar of calendars) {
-                    await t.get('card', 'private', 'calendar_'+syncedCalendar)
-                        .then(function(calendar) {
-                            out.push(calendar);
+                            let found = false;
+                            for (const attachment of card.attachments) {
+                                if (attachment.name === "Google Calendar Event") {
+                                    found = true;
+                                }
+                            }
+
+                            if (found) {
+                                await prepareFetchCardSyncedCalendarsFromAttachments(t, card)
+                                    .then(async function(newCalendars) {
+                                        if (newCalendars === undefined) {
+                                            newCalendars = [];
+                                        }
+                                        for (const newCalendar of newCalendars) {
+                                            out.push(newCalendar);
+                                        }
+                                    });
+                            }
                         });
+
+                } else {
+                    for (const syncedCalendar of calendars) {
+                        await t.get('card', 'private', 'calendar_' + syncedCalendar)
+                            .then(function (calendar) {
+                                out.push(calendar);
+                            });
+                    }
                 }
 
                 resolve(out);
@@ -84,8 +115,10 @@ let showStarredCalendars = function() {
                     .then(async function(calendar) {
                         await t.get('board', 'private', starredCalendar.email)
                             .then(function(account) {
-                                let node = generateStarredCalendarNode(calendar, account);
-                                starredCalendarsList.appendChild(node);
+                                if (account !== undefined) {
+                                    let node = generateStarredCalendarNode(calendar, account);
+                                    starredCalendarsList.appendChild(node);
+                                }
                             });
                     })
             }
@@ -146,7 +179,7 @@ addGoogleCalendarButton.addEventListener('click', function() {
         url: '../google-account-chooser/account-chooser.html',
         height: 120,
         args: {
-            callback: "calendar_chooser",
+            callback: "choose_calendar_and_create_event",
         },
     });
 });
@@ -184,7 +217,7 @@ let generateStarredCalendarNode = function (calendar, account) {
     name.addEventListener('click', function() {
         syncCalendarFromStarredCalendar(t, account, calendar)
             .then(function() {
-                renderPage();
+                maybeRenderPage();
             });
     });
     let nameB = document.createElement('b');
@@ -203,7 +236,7 @@ let generateStarredCalendarNode = function (calendar, account) {
 
     elem.appendChild(header);
     return elem;
-}
+};
 
 let generateSyncedCalendarNode = function(syncedCalendar, account, isStarredCalendar) {
     // <div className="calendar-elem">
@@ -279,7 +312,7 @@ let generateSyncedCalendarNode = function(syncedCalendar, account, isStarredCale
         {icon: "reverse-icon", buttonClass: "", callback: onRefreshClick},
         {icon: "star-icon", buttonClass: isStarredCalendar ? "mod-primary" : "", callback: onStarClick},
         {icon: "video-icon", buttonClass: syncedCalendar.hasConferenceLink ? "mod-primary" : "", callback: onConferenceButtonClick},
-        {icon: "paperclip-icon", buttonClass: "", callback: onAttachEventLinkClick},
+        {icon: "paperclip-icon", buttonClass: syncedCalendar.hasEventLink ? "mod-primary" : "", callback: onEventLinkClick},
         {icon: "download-icon", buttonClass: "", callback: onPullCalendarEventDataClick},
         {icon: "trash-icon", buttonClass: "mod-danger", callback: onDeleteEventButtonClick},
 
@@ -301,44 +334,40 @@ let generateSyncedCalendarNode = function(syncedCalendar, account, isStarredCale
     elem.appendChild(header);
     elem.appendChild(buttons);
     return elem;
-}
+};
 
 let onRefreshClick = function(mouseEvent, syncedCalendar, account) {
     patchCalendarEvent(t, syncedCalendar)
         .then(function() {
-            renderPage();
+            maybeRenderPage();
         });
 };
 
 let onDeleteEventButtonClick = function(mouseEvent, syncedCalendar, account) {
-    deleteCalendarEvent(t, syncedCalendar)
+    prepareDeleteCalendarEvent(t, syncedCalendar)
         .then(function() {
-            renderPage();
+            maybeRenderPage();
         });
 };
 
 let onConferenceButtonClick = function(mouseEvent, syncedCalendar, account) {
     t.get('card', 'private', 'calendar_'+syncedCalendar.calendar.id)
         .then(function(calendar) {
-            if (calendar.hasConferenceLink) {
-                return;
-            }
-
-            addGoogleMeetToEvent(t, syncedCalendar)
+            toggleCalendarEventMeeting(t, syncedCalendar, !calendar.hasConferenceLink)
                 .then(function () {
-                    renderPage();
+                    maybeRenderPage();
                 });
         });
-}
+};
 
 let onPullCalendarEventDataClick = function(mouseEvent, syncedCalendar, account) {
     preparePullCalendarEventData(t, syncedCalendar)
         .then(function() {
-            renderPage();
+            maybeRenderPage();
         });
-}
+};
 
-let onAttachEventLinkClick = function(mouseEvent, syncedCalendar, account) {
+let onEventLinkClick = async function(mouseEvent, syncedCalendar, account) {
     if (!t.memberCanWriteToModel('card')){
         t.alert({
             message: "Oh no! You don't have permission to add attachments to this card.",
@@ -346,59 +375,88 @@ let onAttachEventLinkClick = function(mouseEvent, syncedCalendar, account) {
         });
         return;
     }
-
     mouseEvent.target.disabled = true;
-    t.attach({
-        name: `Google Calendar event`,
-        url: syncedCalendar.event.htmlLink,
-    }).then(function() {
-        mouseEvent.target.disabled = false;
-    });
+
+    let duration = 0;
+    await t.get('card', 'shared', 'duration')
+        .then(function(cardDuration) {
+            duration = cardDuration.value;
+        });
+
+    t.card('all')
+        .then(async function(card) {
+            if (card.attachments === undefined) {
+                card.attachments = [];
+            }
+
+            if (!syncedCalendar.hasEventLink) {
+                let newAttachment = generateCalendarAttachment(syncedCalendar.event, syncedCalendar.calendar, syncedCalendar.email, duration);
+
+                // check if it the attachment already exists
+                let found = false;
+                for (const attachment of card.attachments) {
+                    if (attachment.name === newAttachment.name && attachment.url === newAttachment.url) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                // update card now
+                syncedCalendar.hasEventLink = true;
+                t.set('card', 'private', 'calendar_' + syncedCalendar.calendar.id, syncedCalendar)
+                    .then(function() {
+                        maybeRenderPage();
+                    });
+
+                if (!found) {
+                    t.attach(newAttachment)
+                        .then(async function () {
+                            mouseEvent.target.disabled = false;
+                        });
+                } else {
+                    mouseEvent.target.disabled = false;
+                }
+
+            } else {
+                // generate the attachment of the calendar in order to find it in the list of attachments of the card
+                let searchedAttachment = generateCalendarAttachment(syncedCalendar.event, syncedCalendar.calendar, syncedCalendar.email, duration);
+
+                // update card now
+                mouseEvent.target.disabled = false;
+                syncedCalendar.hasEventLink = false;
+                t.set('card', 'private', 'calendar_' + syncedCalendar.calendar.id, syncedCalendar)
+                    .then(function() {
+                        maybeRenderPage();
+                    });
+
+                // iterate of the list of attachments and delete the one from this calendar
+                if (card.attachments === undefined) {
+                    card.attachments = [];
+                }
+
+                for (const attachment of card.attachments) {
+                    if (attachment.name === searchedAttachment.name && attachment.url === searchedAttachment.url) {
+                        await prepareDeleteAttachment(t, card.id, attachment.id);
+                        break;
+                    }
+                }
+            }
+        });
 };
 
 let onStarClick = function(mouseEvent, syncedCalendar, account) {
+    // disable button
     mouseEvent.target.disabled = true;
-    t.get('board', 'private', 'starred_calendars')
-        .then(function(starredCalendars) {
-            if (starredCalendars === undefined) {
-                starredCalendars = [];
-            }
-
-            // check if the current calendar is starred
-            let index = -1;
-            starredCalendars.forEach(function(calendar, i) {
-                if (calendar.id === syncedCalendar.calendar.id) {
-                    index = i;
-                }
-            });
-
-            if (index >= 0) {
-                // remove this calendar from the list of starred calendars
-                t.set('board', 'private', 'calendar_'+syncedCalendar.calendar.id, undefined)
-                    .then(function() {
-                        starredCalendars.splice(index, 1);
-                        t.set('board', 'private', 'starred_calendars', starredCalendars)
-                            .then(function() {
-                                mouseEvent.target.disabled = false;
-                            });
-                    });
-                // update icon
-                mouseEvent.target.classList.remove("mod-primary");
-            } else {
-                // add this calendar to the list of starred calendars
-                t.set('board', 'private', 'calendar_'+syncedCalendar.calendar.id, syncedCalendar.calendar)
-                    .then(function() {
-                        starredCalendars.push({
-                            id: syncedCalendar.calendar.id,
-                            email: account.email,
-                        });
-                        t.set('board', 'private', 'starred_calendars', starredCalendars)
-                            .then(function() {
-                                mouseEvent.target.disabled = false;
-                            });
-                    });
-                // update icon
+    toggleStarredGoogleCalendar(t, syncedCalendar.calendar, account.email)
+        .then(function(isStarred) {
+            // update icon
+            if (isStarred) {
                 mouseEvent.target.classList.add("mod-primary");
+            } else {
+                mouseEvent.target.classList.remove("mod-primary");
             }
+
+            // enable button again
+            mouseEvent.target.disabled = false;
         });
 };
