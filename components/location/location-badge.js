@@ -27,17 +27,25 @@ export const getLocationDetailBadge = function(t) {
         getSpotlightedLocation(t)
             .then(function(location) {
                 if (location !== null) {
-                    resolve({
-                        title: "Location",
-                        text: location.description,
-                        callback: function (t, options) {
-                            return t.popup({
-                                title: 'Location',
-                                url: './components/location/location-card-form.html',
-                                height: 264,
-                            });
-                        },
-                    });
+                    if (location.description.startsWith("https://")) {
+                        resolve({
+                            title: "Location",
+                            text: location.description,
+                            url: location.description,
+                        });
+                    } else {
+                        resolve({
+                            title: "Location",
+                            text: location.description,
+                            callback: function (t, options) {
+                                return t.popup({
+                                    title: 'Location',
+                                    url: './components/location/location-card-form.html',
+                                    height: 264,
+                                });
+                            },
+                        });
+                    }
                 } else {
                     resolve(null);
                 }

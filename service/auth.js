@@ -1,3 +1,5 @@
+import { getTrelloTokenInfo } from "./api.js";
+
 // getTrelloToken returns the token for the current user if it exists
 export const getTrelloToken = function (t) {
     return new Promise(function(resolve, reject) {
@@ -12,18 +14,7 @@ export const getTrelloToken = function (t) {
                 if (token === undefined || token === '') {
                     resolve(undefined);
                 }
-
-                // check that the token is valid
-                getTrelloTokenInfo(token)
-                    .then(function(tokenInfo) {
-                        // all good
-                        console.log("yellow", tokenInfo)
-                        resolve(token);
-                    })
-                    .catch(function(resp) {
-                        console.log("failed", resp)
-                        resolve(undefined);
-                    });
+                resolve(token);
             });
     });
 };

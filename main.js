@@ -181,7 +181,7 @@ TrelloPowerUp.initialize({
 
     "card-badges": function (t, options) {
         return new Promise(async function (resolve) {
-            await isGoogleAPIKeyReady(t)
+            isGoogleAPIKeyReady(t)
                 .then(async function(apiKeyReady) {
                     if (apiKeyReady && googleAPIServiceInitialized) {
                         // check if we need to sync the card calendar data from the "Google Calendar Event" attachment of the card

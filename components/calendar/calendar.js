@@ -220,8 +220,10 @@ export const patchCalendarEvent = function(t, syncedCalendar) {
                                 location: trelloData.apiInput.location,
                                 start: trelloData.apiInput.start,
                                 end: trelloData.apiInput.end,
+                                maxAttendees: 10,
                             });
-                            syncedCalendar.event = event.result;
+                            // clean up large fields to prevent reaching Trello's limit
+                            syncedCalendar.event = minimizeGoogleEvent(event.result);
 
                             // add new calendar entry
                             await t.set('card', 'private', 'calendar_'+syncedCalendar.calendar.id, syncedCalendar)
@@ -304,6 +306,7 @@ export const fetchGoogleEvent = async function(t, googleToken, calendarID, event
             let event = await gapi.client.calendar.events.get({
                 calendarId: calendarID,
                 eventId: eventID,
+                maxAttendees: 10,
             });
             resolve(event.result);
         } catch (resp) {
@@ -325,7 +328,7 @@ export const fetchGoogleEvent = async function(t, googleToken, calendarID, event
     });
 };
 
-export const prepareFetchCardSyncedCalendarsFromAttachments = function(t, card, tokenPopupAllowed=true) {
+export const prepareFetchCardSyncedCalendarsFromAttachments = function(t, card, fromCardBadge=true) {
     let syncedCalendars = [];
     let syncedCalendarsIDs = [];
     return new Promise(async function(resolve) {
@@ -337,7 +340,7 @@ export const prepareFetchCardSyncedCalendarsFromAttachments = function(t, card, 
                 if (trelloToken === undefined) {
                     awaitingToken = true
 
-                    if (tokenPopupAllowed) {
+                    if (!fromCardBadge) {
                         return t.popup({
                             title: `Authorize ${WillPowerUpAppName}`,
                             url: '../authorize-trello/authorize.html',
@@ -348,11 +351,13 @@ export const prepareFetchCardSyncedCalendarsFromAttachments = function(t, card, 
                         });
                     }
                 } else {
-                    // update attachments
-                    await getAttachments(t, card.id)
-                        .then(function(attachments) {
-                            card.attachments = attachments;
-                        });
+                    if (!fromCardBadge) {
+                        // update attachments
+                        await getAttachments(t, card.id)
+                            .then(function (attachments) {
+                                card.attachments = attachments;
+                            });
+                    }
                 }
             });
         if (awaitingToken) {
@@ -379,7 +384,7 @@ export const prepareFetchCardSyncedCalendarsFromAttachments = function(t, card, 
                         if (googleToken == null) {
                             awaitingToken = true;
 
-                            if (tokenPopupAllowed) {
+                            if (!fromCardBadge) {
                                 return t.popup({
                                     title: 'Choose a Google Account',
                                     url: '../google-account-chooser/account-chooser.html',
@@ -426,10 +431,12 @@ export const prepareFetchCardSyncedCalendarsFromAttachments = function(t, card, 
                         // fetch event
                         await fetchGoogleEvent(t, googleToken, params.get('calendarID'), params.get('eventID'))
                             .then(function(event) {
-                                syncedCalendar.event = event;
+                                // clean up large fields to prevent reaching Trello's limit
+                                syncedCalendar.event = minimizeGoogleEvent(event);
                                 syncedCalendar.hasConferenceLink = googleEventHasConferenceData(event);
                                 syncedCalendar.hasEventLink = true;
                             })
+
 
                         // save newly created synced calendar
                         await t.set('card', 'private', 'calendar_'+syncedCalendar.calendar.id, syncedCalendar);
@@ -727,7 +734,7 @@ export const fetchGoogleEvents = async function(t, googleToken, account, calenda
                 'calendarId': calendar.id,
                 'timeMin': now.toISOString(),
                 'timeMax': new Date(now.setDate(now.getDate() + limit)).toISOString(),
-                'maxAttendees': 50,
+                'maxAttendees': 10,
                 'showDeleted': false,
                 'singleEvents': true,
                 'maxResults': 500,
@@ -971,7 +978,9 @@ export const createCalendarEvent = function(t, selectedEmail, calendar, resolve)
                                 end: trelloData.apiInput.end,
                             },
                         );
-                        newSyncedCal.event = event.result;
+                        // clean up large fields to prevent reaching Trello's limit
+                        newSyncedCal.event = minimizeGoogleEvent(event.result);
+
 
                         // add new calendar entry
                         await t.set('card', 'private', 'calendar_'+calendar.id, newSyncedCal)
@@ -1069,12 +1078,14 @@ export const toggleCalendarEventMeeting = function(t, syncedCalendar, shouldAdd)
                             } : null,
                         },
                         conferenceDataVersion: 1,
+                        maxAttendees: 10,
                     });
 
                     await t.get('card', 'private', 'calendar_'+syncedCalendar.calendar.id)
                         .then(async function(calendar) {
                             calendar.hasConferenceLink = shouldAdd;
-                            calendar.event = resp.result;
+                            // clean up large fields to prevent reaching Trello's limit
+                            calendar.event = minimizeGoogleEvent(resp.result);
                             await t.set('card', 'private', 'calendar_'+syncedCalendar.calendar.id, calendar)
                                 .then(function() {
                                     // wait a bit so that t.set doesn't interfere with t.alert
@@ -1289,12 +1300,14 @@ export const getCalendarDetailBadges = function(t, googleAPIServiceInitialized) 
                             });
 
                             if (syncedCalendar.event.conferenceData !== undefined && syncedCalendar.event.conferenceData.entryPoints !== undefined && syncedCalendar.event.conferenceData.entryPoints.length > 0) {
-                                if (syncedCalendar.event.conferenceData.createRequest.status.statusCode === "success") {
-                                    out.push({
-                                        title: syncedCalendar.event.conferenceData.conferenceSolution.name,
-                                        text: syncedCalendar.event.conferenceData.conferenceId,
-                                        url: syncedCalendar.event.conferenceData.entryPoints[0].uri,
-                                    });
+                                for (const entryPoint of syncedCalendar.event.conferenceData.entryPoints) {
+                                    if (entryPoint.entryPointType === "video") {
+                                        out.push({
+                                            title: syncedCalendar.event.conferenceData.conferenceSolution.name,
+                                            text: syncedCalendar.event.conferenceData.conferenceId,
+                                            url: entryPoint.uri,
+                                        });
+                                    }
                                 }
                             }
 
@@ -1409,8 +1422,11 @@ export const updateCalendarEventResponse = function(t, syncedCalendar, attendees
                         calendarId: syncedCalendar.calendar.id,
                         eventId: syncedCalendar.event.id,
                         attendees: attendees,
+                        maxAttendees: 10,
                     });
-                    syncedCalendar.event = event.result;
+                    // clean up large fields to prevent reaching Trello's limit
+                    syncedCalendar.event = minimizeGoogleEvent(event.result);
+
 
                     // add new calendar entry
                     await t.set('card', 'private', 'calendar_'+syncedCalendar.calendar.id, syncedCalendar)
@@ -1483,6 +1499,29 @@ export const preparePullCalendarEventData = function(t, syncedCalendar) {
             });
     });
 };
+
+let minimizeGoogleEvent = function(googleEvent) {
+    return {
+        attendees: googleEvent.attendees,
+        conferenceData: googleEvent.conferenceData === undefined ? {} : {
+            conferenceId: googleEvent.conferenceData.conferenceId,
+            conferenceSolution: googleEvent.conferenceData.conferenceSolution === undefined ? {} : {
+                name: googleEvent.conferenceData.conferenceSolution.name,
+            },
+            entryPoints: googleEvent.conferenceData.entryPoints === undefined ? [] : googleEvent.conferenceData.entryPoints.filter(function(elem) {
+                return elem.entryPointType === "video";
+            }),
+        },
+        description: "",
+        start: googleEvent.start,
+        end: googleEvent.end,
+        etag: googleEvent.etag,
+        id: googleEvent.id,
+        location: googleEvent.location,
+        summary: googleEvent.summary,
+        htmlLink: googleEvent.htmlLink,
+    };
+}
 
 let sanitizeCalendarEventDescription = function(input) {
     if (input === undefined) {
@@ -1584,10 +1623,12 @@ let pullCalendarEventData = async function(t, googleToken, trelloToken, syncedCa
                         let event = await gapi.client.calendar.events.get({
                             calendarId: syncedCalendar.calendar.id,
                             eventId: syncedCalendar.event.id,
+                            maxAttendees: 10,
                         });
 
                         let cardInput = newCardInputFromGoogleEvent(event.result, calendar, syncedCalendar.email);
-                        calendar.event = event.result;
+                        // clean up large fields to prevent reaching Trello's limit
+                        calendar.event = minimizeGoogleEvent(event.result);
                         calendar.hasConferenceLink = cardInput.hasConferenceLink;
 
                         // we don't want to generate a Google Calendar Event attachment so get rid of it
@@ -1825,11 +1866,11 @@ export const onCalendarAttachmentSync = async function(t) {
                 }
             }
 
-            // try to generate card scoped data from the attachments
+            // create synced_calendars entries from attachment when applicable
             await t.get('card', 'private', 'synced_calendars')
                 .then(async function(calendars) {
                     if (calendars === undefined || calendars.length === 0) {
-                        await prepareFetchCardSyncedCalendarsFromAttachments(t, card, false);
+                        await prepareFetchCardSyncedCalendarsFromAttachments(t, card, true);
                     }
                 });
         });
