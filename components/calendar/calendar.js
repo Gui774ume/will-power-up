@@ -2,9 +2,12 @@ import { getGoogleAccountToken } from "../google-account-chooser/account-helper.
 import { getSpotlightedLocation } from "../location/location-badge.js";
 import { getTrelloToken } from "../../service/auth.js";
 import { WillPowerUpAppName } from "../../constants.js";
+import { RequestPacer } from "../../service/utils.js";
 import {
     deleteAttachment,
-    deleteCard, getAttachments, getLabels,
+    deleteCard,
+    getAttachments,
+    getLabels,
     postCard,
     putCard,
     putScopedCardData,
@@ -665,7 +668,7 @@ export const jumpAndDeleteSyncedCalendarEventsFromList = async function(t, synce
 
 export const deleteSyncedCalendarEventsFromList = async function(t, syncedCalendar, list, currentIndex, outOfCount) {
     // delete all cards in list
-    let promiseList = [];
+    let requestPacer = new RequestPacer();
     if (list.cards === undefined) {
         list.cards = [];
     }
@@ -679,12 +682,7 @@ export const deleteSyncedCalendarEventsFromList = async function(t, syncedCalend
                 let params = new URLSearchParams(attachment.url);
                 if (params.get('calendarID') === syncedCalendar.calendar.id) {
                     // delete card
-                    promiseList.push(deleteCard(t, card.id));
-
-                    // wait 1 second every 5 Trello queries in order to avoid hitting Trello's rate limit
-                    if (promiseList.length % 5 === 0) {
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                    }
+                    await requestPacer.add(deleteCard(t, card.id));
                     break;
                 }
             }
@@ -692,7 +690,7 @@ export const deleteSyncedCalendarEventsFromList = async function(t, syncedCalend
     }
 
     // wait until all cards are deleted
-    await Promise.all(promiseList);
+    await requestPacer.wait();
 
     // remove calendar entry
     await t.set('board', 'private', 'synced_calendar_' + list.id + '_' + syncedCalendar.calendar.id, undefined)
@@ -818,7 +816,7 @@ export const syncCalendarList = function(t, googleToken, trelloToken, account, c
         // fetch the list of upcoming Google events
         await fetchGoogleEvents(t, googleToken, account, calendar)
             .then(async function(googleEvents) {
-                let promiseList = [];
+                let requestPacer = new RequestPacer();
                 let existingGoogleEventIDs = [];
                 outOfCount.innerText = list.cards.length + googleEvents.length;
 
@@ -865,12 +863,7 @@ export const syncCalendarList = function(t, googleToken, trelloToken, account, c
                             let cardInput = newCardInputFromGoogleEvent(googleEvent, calendar, account.email, cardLabels);
                             // only update the card if the etags are different
                             if (currentEtag !== googleEvent.etag || !calendarLabelFound) {
-                                promiseList.push(putCard(t, card.id, cardInput, false));
-
-                                // wait 1 second every 5 Trello queries in order to avoid hitting Trello's rate limit
-                                if (promiseList.length % 5 === 0) {
-                                    await new Promise(resolve => setTimeout(resolve, 1000));
-                                }
+                                await requestPacer.add(putCard(t, card.id, cardInput, false), 2+2*cardInput.attachments.length);
                             }
                         }
                     }
@@ -882,12 +875,7 @@ export const syncCalendarList = function(t, googleToken, trelloToken, account, c
                         }
 
                         // the event was deleted, delete the card
-                        promiseList.push(deleteCard(t, card.id));
-
-                        // wait 1 second every 5 Trello queries in order to avoid hitting Trello's rate limit
-                        if (promiseList.length % 5 === 0) {
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                        }
+                        await requestPacer.add(deleteCard(t, card.id));
                     }
                 }
 
@@ -918,15 +906,10 @@ export const syncCalendarList = function(t, googleToken, trelloToken, account, c
                     // create new card for the current Google Event
                     let cardInput = newCardInputFromGoogleEvent(googleEvent, calendar, account.email, labels);
                     cardInput.idList = list.id;
-                    promiseList.push(postCard(t, cardInput));
-
-                    // wait 1 second every 5 Trello queries in order to avoid hitting Trello's rate limit
-                    if (promiseList.length % 5 === 0) {
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                    }
+                    await requestPacer.add(postCard(t, cardInput), 1+cardInput.attachments.length);
                 }
 
-                await Promise.all(promiseList);
+                await requestPacer.wait();
             })
             .catch(function(err) {
                 console.log(`couldn't fetch Google Events: ${err}`);

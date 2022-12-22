@@ -181,14 +181,6 @@ TrelloPowerUp.initialize({
 
     "card-badges": function (t, options) {
         return new Promise(async function (resolve) {
-            isGoogleAPIKeyReady(t)
-                .then(async function(apiKeyReady) {
-                    if (apiKeyReady && googleAPIServiceInitialized) {
-                        // check if we need to sync the card calendar data from the "Google Calendar Event" attachment of the card
-                        await onCalendarAttachmentSync(t);
-                    }
-                });
-
             let badges = [{
                 dynamic: function () {
                     t.card('all')
@@ -206,24 +198,35 @@ TrelloPowerUp.initialize({
                     };
                 },
             }];
-            getLocationBadge(t)
+
+            await getLocationBadge(t)
                 .then(function (locationBadge) {
                     if (locationBadge !== null) {
                         badges.push(locationBadge);
                     }
-                    getDurationBadge(t)
-                        .then(function (durationBadge) {
-                            if (durationBadge !== null) {
-                                badges.push(durationBadge);
-                            }
-                            resolve(badges);
-                        });
                 });
+
+            await getDurationBadge(t)
+                .then(function (durationBadge) {
+                    if (durationBadge !== null) {
+                        badges.push(durationBadge);
+                    }
+                });
+
+            resolve(badges);
         });
     },
 
     "card-detail-badges": function (t, opts) {
         return new Promise(async function (resolve) {
+            isGoogleAPIKeyReady(t)
+                .then(async function(apiKeyReady) {
+                    if (apiKeyReady && googleAPIServiceInitialized) {
+                        // check if we need to sync the card calendar data from the "Google Calendar Event" attachment of the card
+                        await onCalendarAttachmentSync(t);
+                    }
+                });
+
             let badges = [];
             await getDurationDetailBadge(t)
                 .then(function (durationBadge) {

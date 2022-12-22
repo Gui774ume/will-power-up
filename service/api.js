@@ -64,7 +64,7 @@ export const putScopedCardData = async function(t, cardInput) {
 export const putCard = async function(t, id, cardInput, hasCardInContext) {
     // check if card namespace data should be updated
     if (hasCardInContext) {
-        await putScopedCardData(t, id, cardInput)
+        await putScopedCardData(t, cardInput)
     }
     return new Promise(function(resolve, reject) {
         getTrelloToken(t)
