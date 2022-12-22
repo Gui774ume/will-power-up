@@ -10,9 +10,9 @@ let deleteButton = document.getElementById('delete');
 let otherOptionsWrapper = document.getElementById('other_options_wrapper');
 let optionsCounter = 0;
 
-t.render(function(){
-    t.member('all')
-        .then(function(me) {
+t.render(async function(){
+    await t.member('all')
+        .then(async function(me) {
             let currentPoll = t.arg("poll");
             if (currentPoll !== undefined) {
                 pollQuestionInput.value = currentPoll.question;
@@ -40,7 +40,7 @@ t.render(function(){
                 deleteButton.parentNode.removeChild(deleteButton);
             }
 
-            t.sizeTo("#poll_form");
+            await t.sizeTo("#poll_form");
         });
 });
 

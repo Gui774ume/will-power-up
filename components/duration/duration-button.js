@@ -2,7 +2,7 @@ export const getDurationButton = function(t, options) {
     return t.popup({
         title: 'Task duration',
         items: function(t, options) {
-            return new Promise(function(resolve) {
+            return new Promise(async function(resolve) {
                 let durations = [
                     {
                         name: "Remove duration",
@@ -42,6 +42,20 @@ export const getDurationButton = function(t, options) {
                     }
                 ];
                 let items = [];
+
+                // add the current choice
+                await t.get('card', 'shared', 'duration')
+                    .then(function(duration) {
+                        if (duration !== undefined && duration.value > 0) {
+                            items.push({
+                                text: `Keep '${duration.name}'`,
+                                callback: async function(t, opt) {
+                                    await t.closePopup()
+                                },
+                            });
+                        }
+                    });
+
                 durations.forEach(function(duration) {
                     items.push({
                         text: duration.name,

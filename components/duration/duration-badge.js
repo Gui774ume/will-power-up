@@ -34,3 +34,23 @@ export const getDurationBadge = function(t) {
             });
     });
 };
+
+export const getTimeBadge = function(t) {
+    return new Promise(function(resolve) {
+        t.card('due')
+            .then(function (card) {
+                if (card.due !== undefined && card.due !== null) {
+                    let dueDate = new Date(Date.parse(card.due));
+                    let hours = dueDate.getHours() >= 10 ? dueDate.getHours().toString() : "0" + dueDate.getHours().toString();
+                    let minutes = dueDate.getMinutes() >= 10 ? dueDate.getMinutes().toString() : "0" + dueDate.getMinutes().toString();
+                    resolve({
+                        text: `${hours}:${minutes}`,
+                        icon: './svg/clock-regular.svg',
+                        color: null,
+                    });
+                } else {
+                    resolve(null);
+                }
+            });
+    });
+};

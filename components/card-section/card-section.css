@@ -50,3 +50,7 @@
     height: 18px;
     width: 18px;
 }
+
+.mod-primary .card-section-icon {
+    background-color: white;
+}

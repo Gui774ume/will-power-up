@@ -44,63 +44,9 @@ export const chooseCalendarAndCreateEvent = function(t, selectedEmail) {
             // use the provided token
             gapi.client.setToken(token);
 
-            try {
-                // request calendar list
-                let calendars = await gapi.client.calendar.calendarList.list({});
-
-                // open Calendar chooser popup
-                t.popup({
-                    title: 'Choose a calendar',
-                    items: function (t, options) {
-                        return new Promise(function (resolve) {
-                            let out = [];
-
-                            if (calendars === undefined || calendars.result === undefined) {
-                                return resolve(out);
-                            }
-
-                            calendars.result.items.filter(function (elem) {
-                                if (options.search === '') {
-                                    return true;
-                                }
-                                let text = elem.summaryOverride !== undefined ? elem.summaryOverride : elem.summary;
-                                return text.toLowerCase().includes(options.search.toLowerCase());
-                            }).map(function (elem) {
-                                return {
-                                    text: elem.summaryOverride !== undefined ? elem.summaryOverride : elem.summary,
-                                    callback: function (t, opts) {
-                                        createCalendarEvent(t, selectedEmail, elem, undefined);
-                                    },
-                                };
-                            }).forEach(function (elem) {
-                                out.push(elem);
-                            });
-                            resolve(out);
-                        });
-                    },
-                    search: {
-                        debounce: 300,
-                        placeholder: 'Search calendars',
-                        empty: 'No calendars found',
-                        searching: 'Searching Google Calendar...'
-                    }
-                });
-
-            } catch (resp) {
-                let msg = ''
-                if (resp.result !== undefined && resp.result.error !== undefined) {
-                    msg = resp.result.error.message;
-                } else {
-                    msg = "see console";
-                    console.log(resp);
-                }
-                setTimeout(function() {
-                    t.alert({
-                        message: `Couldn't list calendars: ${msg}`,
-                        duration: 6,
-                    });
-                }, 1000);
-            }
+            await chooseCalendarAndCallback(t, token, async function (t, opts, calendar) {
+                createCalendarEvent(t, selectedEmail, calendar, undefined);
+            });
         });
 };
 
@@ -1566,15 +1512,16 @@ let newCardInputFromGoogleEvent = function(googleEvent, calendar, email, labels=
     }
 
     // handle event dates
-    let googleEventStart = googleEvent.start.dateTime !== undefined ? new Date(Date.parse(googleEvent.start.dateTime)) : (googleEvent.start.date !== undefined ? new Date(Date.parse(googleEvent.start.date)) : new Date());
-    let googleEventEnd = googleEvent.end.dateTime !== undefined ? new Date(Date.parse(googleEvent.end.dateTime)) : (googleEvent.end.date !== undefined ? new Date(Date.parse(googleEvent.end.date)) : new Date());
+    let googleEventStart = googleEvent.start.dateTime !== undefined ? new Date(Date.parse(googleEvent.start.dateTime)) : (googleEvent.start.date !== undefined ? new Date(new Date(Date.parse(googleEvent.start.date)).setHours(0)) : new Date());
+    let googleEventEnd = googleEvent.end.dateTime !== undefined ? new Date(Date.parse(googleEvent.end.dateTime)) : (googleEvent.end.date !== undefined ? new Date(new Date(Date.parse(googleEvent.end.date)).setHours(0)) : new Date());
     if (googleEventStart.getFullYear() === googleEventEnd.getFullYear() && googleEventStart.getMonth() === googleEventEnd.getMonth() && googleEventStart.getDate() === googleEventEnd.getDate()) {
         out.start = null;
         out.due = googleEventStart.toISOString();
         // compute event duration in minutes
         out.duration = Math.floor((Math.abs(googleEventEnd - googleEventStart)/1000)/60);
     } else {
-        // this is a full day event
+        // this is an all day event make sure the due date is on the correct date
+        googleEventEnd.setMinutes(googleEventEnd.getMinutes() - 1);
         out.start = googleEventStart.toISOString();
         out.due = googleEventEnd.toISOString();
         out.duration = 0;
@@ -1673,69 +1620,76 @@ export const chooseCalendarAndSyncCalendarList = function(t, selectedEmail) {
                 });
             }
 
-            // use the provided token
-            gapi.client.setToken(token);
-
-            try {
-                // request calendar list
-                let calendars = await gapi.client.calendar.calendarList.list({});
-
-                // open Calendar chooser popup
-                t.popup({
-                    title: 'Choose a calendar',
-                    items: function (t, options) {
-                        return new Promise(function (resolve) {
-                            let out = [];
-
-                            if (calendars === undefined || calendars.result === undefined) {
-                                return resolve(out);
-                            }
-
-                            calendars.result.items.filter(function (elem) {
-                                if (options.search === '') {
-                                    return true;
-                                }
-                                let text = elem.summaryOverride !== undefined ? elem.summaryOverride : elem.summary;
-                                return text.toLowerCase().includes(options.search.toLowerCase());
-                            }).map(function (elem) {
-                                return {
-                                    text: elem.summaryOverride !== undefined ? elem.summaryOverride : elem.summary,
-                                    callback: async function (t, opts) {
-                                        await prepareSyncCalendarList(t, selectedEmail, elem)
-                                            .then(async function() {});
-                                    },
-                                };
-                            }).forEach(function (elem) {
-                                out.push(elem);
-                            });
-                            resolve(out);
-                        });
-                    },
-                    search: {
-                        debounce: 300,
-                        placeholder: 'Search calendars',
-                        empty: 'No calendars found',
-                        searching: 'Searching Google Calendar...'
-                    }
-                });
-
-            } catch (resp) {
-                let msg = ''
-                if (resp.result !== undefined && resp.result.error !== undefined) {
-                    msg = resp.result.error.message;
-                } else {
-                    msg = "see console";
-                    console.log(resp);
-                }
-                setTimeout(function() {
-                    t.alert({
-                        message: `Couldn't list calendars: ${msg}`,
-                        duration: 6,
+            await chooseCalendarAndCallback(t, token, async function (t, opts, calendar) {
+                await prepareSyncCalendarList(t, selectedEmail, calendar)
+                    .then(async function () {
                     });
-                }, 1000);
-            }
+            });
         });
 };
+
+export const chooseCalendarAndCallback = async function(t, token, callback) {
+    // use the provided token
+    gapi.client.setToken(token);
+
+    try {
+        // request calendar list
+        let calendars = await gapi.client.calendar.calendarList.list({});
+
+        // open Calendar chooser popup
+        t.popup({
+            title: 'Choose a calendar',
+            items: function (t, options) {
+                return new Promise(function (resolve) {
+                    let out = [];
+
+                    if (calendars === undefined || calendars.result === undefined) {
+                        return resolve(out);
+                    }
+
+                    calendars.result.items.filter(function (elem) {
+                        if (options.search === '') {
+                            return true;
+                        }
+                        let text = elem.summaryOverride !== undefined ? elem.summaryOverride : elem.summary;
+                        return text.toLowerCase().includes(options.search.toLowerCase());
+                    }).map(function (elem) {
+                        return {
+                            text: elem.summaryOverride !== undefined ? elem.summaryOverride : elem.summary,
+                            callback: async function (t, opts) {
+                                await callback(t, opts, elem);
+                            },
+                        };
+                    }).forEach(function (elem) {
+                        out.push(elem);
+                    });
+                    resolve(out);
+                });
+            },
+            search: {
+                debounce: 300,
+                placeholder: 'Search calendars',
+                empty: 'No calendars found',
+                searching: 'Searching Google Calendar...'
+            }
+        });
+
+    } catch (resp) {
+        let msg = ''
+        if (resp.result !== undefined && resp.result.error !== undefined) {
+            msg = resp.result.error.message;
+        } else {
+            msg = "see console";
+            console.log(resp);
+        }
+        setTimeout(function() {
+            t.alert({
+                message: `Couldn't list calendars: ${msg}`,
+                duration: 6,
+            });
+        }, 1000);
+    }
+}
 
 // chooseCalendarAndStarrCalendar shows the list of calendars for the provided mail address and stars the selected calendar
 export const chooseCalendarAndStarrCalendar = function(t, selectedEmail) {
@@ -1753,74 +1707,17 @@ export const chooseCalendarAndStarrCalendar = function(t, selectedEmail) {
                 });
             }
 
-            // use the provided token
-            gapi.client.setToken(token);
-
-            try {
-                // request calendar list
-                let calendars = await gapi.client.calendar.calendarList.list({});
-
-                // open Calendar chooser popup
-                t.popup({
-                    title: 'Choose a calendar',
-                    items: function (t, options) {
-                        return new Promise(function (resolve) {
-                            let out = [];
-
-                            if (calendars === undefined || calendars.result === undefined) {
-                                return resolve(out);
-                            }
-
-                            calendars.result.items.filter(function (elem) {
-                                if (options.search === '') {
-                                    return true;
-                                }
-                                let text = elem.summaryOverride !== undefined ? elem.summaryOverride : elem.summary;
-                                return text.toLowerCase().includes(options.search.toLowerCase());
-                            }).map(function (elem) {
-                                return {
-                                    text: elem.summaryOverride !== undefined ? elem.summaryOverride : elem.summary,
-                                    callback: async function (t, opts) {
-                                        await toggleStarredGoogleCalendar(t, elem, selectedEmail, true)
-                                            .then(async function() {
-                                                // redirect to settings
-                                                return t.popup({
-                                                    title: 'Settings',
-                                                    url: '../settings/settings.html',
-                                                    height: 200,
-                                                });
-                                            });
-                                    },
-                                };
-                            }).forEach(function (elem) {
-                                out.push(elem);
-                            });
-                            resolve(out);
+            await chooseCalendarAndCallback(t, token, async function (t, opts, calendar) {
+                await toggleStarredGoogleCalendar(t, calendar, selectedEmail, true)
+                    .then(async function() {
+                        // redirect to settings
+                        return t.popup({
+                            title: 'Settings',
+                            url: '../settings/settings.html',
+                            height: 200,
                         });
-                    },
-                    search: {
-                        debounce: 300,
-                        placeholder: 'Search calendars',
-                        empty: 'No calendars found',
-                        searching: 'Searching Google Calendar...'
-                    }
-                });
-
-            } catch (resp) {
-                let msg = ''
-                if (resp.result !== undefined && resp.result.error !== undefined) {
-                    msg = resp.result.error.message;
-                } else {
-                    msg = "see console";
-                    console.log(resp);
-                }
-                setTimeout(function() {
-                    t.alert({
-                        message: `Couldn't list calendars: ${msg}`,
-                        duration: 6,
                     });
-                }, 1000);
-            }
+            });
         });
 };
 

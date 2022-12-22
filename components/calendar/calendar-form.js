@@ -188,7 +188,7 @@ let generateStarredCalendarNode = function (calendar, account) {
     // <div className="calendar-elem">
     //     <div className="calendar-header">
     //         <div>
-    //             <img className="calendar-icon"
+    //             <img className="calendar-photo"
     //                  src="https://trello-members.s3.amazonaws.com/63637a4a19d3ab0274662fc1/fcd5f66926b503d050814724cda6cb7a/170.png">
     //         </div>
     //         <div className="calendar-name">
@@ -206,7 +206,7 @@ let generateStarredCalendarNode = function (calendar, account) {
     header.classList.add('calendar-header');
     let imgDiv = document.createElement('div');
     let img = document.createElement('img');
-    img.classList.add('calendar-icon');
+    img.classList.add('calendar-photo');
     if (account.photo !== undefined && account.photo !== '') {
         img.src = account.photo;
     }
@@ -242,7 +242,7 @@ let generateSyncedCalendarNode = function(syncedCalendar, account, isStarredCale
     // <div className="calendar-elem">
     //     <div className="calendar-header">
     //         <div>
-    //             <img className="calendar-icon"
+    //             <img className="calendar-photo"
     //                  src="https://trello-members.s3.amazonaws.com/63637a4a19d3ab0274662fc1/fcd5f66926b503d050814724cda6cb7a/170.png">
     //         </div>
     //         <div className="calendar-name">
@@ -280,7 +280,7 @@ let generateSyncedCalendarNode = function(syncedCalendar, account, isStarredCale
     header.classList.add('calendar-header');
     let imgDiv = document.createElement('div');
     let img = document.createElement('img');
-    img.classList.add('calendar-icon');
+    img.classList.add('calendar-photo');
     if (account.photo !== undefined && account.photo !== '') {
         img.src = account.photo;
     }

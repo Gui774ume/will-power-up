@@ -1,0 +1,113 @@
+.contact-header-wrapper {
+    -webkit-box-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    display: flex !important;
+    flex: 1 1 100%;
+    -webkit-box-pack: justify;
+    justify-content: start;
+    max-width: 100%;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    vertical-align: top;
+    pointer-events: auto;
+    padding: 5px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.contact-header {
+    padding: 3px;
+}
+
+.contact-header:hover {
+    background-color: #091e4214;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.contact-wrapper-with-separator {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #9d9d9d;
+}
+
+.contact-wrapper em, .contact-wrapper-with-separator em {
+    font-size: 14px;
+}
+
+.contact-photo {
+    border-radius: 100%;
+    height: 125px;
+    width: 125px;
+    border: 1px solid #868686;
+    margin-right: 18px;
+    background-color: #e7e7e7;
+}
+
+.contact-detail-wrapper {
+    -webkit-box-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 100%;
+    -webkit-box-pack: justify;
+    justify-content: start;
+    max-width: 100%;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    vertical-align: top;
+    pointer-events: auto;
+    margin-bottom: 5px;
+}
+
+.contact-detail {
+    -webkit-box-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex: 1 1 100%;
+    -webkit-box-pack: justify;
+    justify-content: start;
+    max-width: 100%;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    vertical-align: top;
+    pointer-events: auto;
+    padding: 5px 5px 2px;
+    border-radius: 3px;
+    text-align: justify;
+}
+
+.contact-link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.contact-detail-icon-wrapper {
+    margin-right: 8px;
+    display: block;
+    margin-top: 1px;
+}
+
+.contact-detail-icon-wrapper span {
+    background-color: #454545 !important;
+}
+
+.contact-detail-elem {
+    margin-left: 29px;
+    margin-bottom: 3px;
+}
+
+.contact-tag {
+    color: #9d9d9d;
+}
+
+.contact-label {
+    border: 1px solid #42526e;
+    padding: 3px 5px;
+    border-radius: 3px;
+    margin-top: 5px;
+    margin-right: 5px;
+    width: fit-content;
+}

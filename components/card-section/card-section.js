@@ -1,11 +1,13 @@
 import { renderLocationSection } from '../location/location-card-section.js';
 import { renderPollSection } from "../poll/poll-card-section.js";
 import { shouldShowCardSection } from "../../service/sections.js";
+import { renderContactSection } from "../contacts/contact-card-section.js";
 
 let t = TrelloPowerUp.iframe();
+var Promise = TrelloPowerUp.Promise;
 
 export const resetCardSectionHeight = function() {
-    shouldShowCardSection(t)
+    return shouldShowCardSection(t)
         .then(function(yes) {
             if (yes) {
                 t.sizeTo("#card_section_wrapper").catch(function() {
@@ -17,12 +19,12 @@ export const resetCardSectionHeight = function() {
         });
 };
 
-t.render(function(){
-    renderLocationSection()
-        .then(function () {
-            renderPollSection()
-                .then(function () {
-                    resetCardSectionHeight();
-                });
-        });
+t.render(async function(){
+    await Promise.all([
+        renderContactSection(),
+        renderPollSection(),
+        renderLocationSection(),
+    ]);
+
+    return resetCardSectionHeight();
 });

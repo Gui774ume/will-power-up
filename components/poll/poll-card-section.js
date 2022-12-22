@@ -53,7 +53,7 @@ export const renderPollSection = function(){
                                 t.popup({
                                     title: 'Edit poll',
                                     url: '../poll/poll-form.html',
-                                    height: 182,
+                                    height: 284,
                                     args: {
                                         poll: poll,
                                     },
@@ -256,7 +256,7 @@ pollSectionHeaderButton.addEventListener('click', function(evt) {
     t.popup({
         title: 'Add a poll',
         url: '../poll/poll-form.html',
-        height: 182,
+        height: 284,
         mouseEvent: evt,
     });
 });

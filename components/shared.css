@@ -243,3 +243,58 @@
     -webkit-mask: url(../svg/video-solid.svg) no-repeat center;
     mask: url(../svg/video-solid.svg) no-repeat center;
 }
+
+.contacts-icon {
+    -webkit-mask: url(../svg/address-card-regular.svg) no-repeat center;
+    mask: url(../svg/address-card-regular.svg) no-repeat center;
+}
+
+.at-icon {
+    -webkit-mask: url(../svg/at-solid.svg) no-repeat center;
+    mask: url(../svg/at-solid.svg) no-repeat center;
+}
+
+.envelope-icon {
+    -webkit-mask: url(../svg/envelope-regular.svg) no-repeat center;
+    mask: url(../svg/envelope-regular.svg) no-repeat center;
+}
+
+.phone-icon {
+    -webkit-mask: url(../svg/phone.svg) no-repeat center;
+    mask: url(../svg/phone.svg) no-repeat center;
+}
+
+.location-dot-icon {
+    -webkit-mask: url(../svg/location-dot.svg) no-repeat center;
+    mask: url(../svg/location-dot.svg) no-repeat center;
+}
+
+.cake-icon {
+    -webkit-mask: url(../svg/cake-candles.svg) no-repeat center;
+    mask: url(../svg/cake-candles.svg) no-repeat center;
+}
+
+.calendar-icon {
+    -webkit-mask: url(../svg/calendar-regular.svg) no-repeat center;
+    mask: url(../svg/calendar-regular.svg) no-repeat center;
+}
+
+.family-icon {
+    -webkit-mask: url(../svg/family.svg) no-repeat center;
+    mask: url(../svg/family.svg) no-repeat center;
+}
+
+.note-icon {
+    -webkit-mask: url(../svg/note-sticky.svg) no-repeat center;
+    mask: url(../svg/note-sticky.svg) no-repeat center;
+}
+
+.hide-icon {
+    -webkit-mask: url(../svg/eye-slash.svg) no-repeat center;
+    mask: url(../svg/eye-slash.svg) no-repeat center;
+}
+
+.show-icon {
+    -webkit-mask: url(../svg/eye.svg) no-repeat center;
+    mask: url(../svg/eye.svg) no-repeat center;
+}

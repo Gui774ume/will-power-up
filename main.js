@@ -3,7 +3,7 @@ import { getTrelloToken } from "./service/auth.js";
 import { shouldShowCardSection } from "./service/sections.js";
 
 import { getDurationButton } from "./components/duration/duration-button.js";
-import { getDurationBadge, getDurationDetailBadge } from "./components/duration/duration-badge.js";
+import {getDurationBadge, getDurationDetailBadge, getTimeBadge} from "./components/duration/duration-badge.js";
 import { getLocationBadge, getLocationDetailBadge } from "./components/location/location-badge.js";
 import { getCalendarDetailBadges, onCalendarAttachmentSync } from "./components/calendar/calendar.js";
 import { moveCardToArchives } from "./components/card-mover/cards-mover.js";
@@ -89,93 +89,113 @@ TrelloPowerUp.initialize({
     },
 
     'card-buttons': function (t, options) {
-        return new Promise(function (resolve) {
-            isGoogleAPIKeyReady(t)
-                .then(function (googleAPIKeyReady) {
-                    getTrelloToken(t)
-                        .then(function (userToken) {
-                            let buttons = [];
-
-                            // add Location button
-                            if (googleAPIKeyReady) {
-                                buttons.push({
-                                    icon: './svg/map-location-dot-solid.svg',
-                                    text: 'Location',
-                                    callback: function (t, options) {
-                                        return t.popup({
-                                            title: 'Location',
-                                            url: './components/location/location-card-form.html',
-                                            height: 264,
-                                        });
-                                    }
-                                });
-                            } else {
-                                buttons.push({
-                                    icon: './svg/map-location-dot-solid.svg',
-                                    text: 'Location',
-                                    callback: function (t, options) {
-                                        return t.popup({
-                                            title: 'Google API Key missing',
-                                            url: './components/google-api-key-required/google-api-key-required.html',
-                                            height: 100,
-                                        })
-                                    }
-                                });
-                            }
-
-                            // add Poll button
-                            if (userToken !== undefined) {
-                                buttons.push({
-                                    icon: './svg/bars-progress-solid.svg',
-                                    text: 'Poll',
-                                    callback: function (t, options) {
-                                        return t.popup({
-                                            title: 'Add a poll',
-                                            url: './components/poll/poll-form.html',
-                                            height: 284,
-                                        });
-                                    },
-                                });
-                            } else {
-                                buttons.push({
-                                    icon: './svg/bars-progress-solid.svg',
-                                    text: 'Poll',
-                                    callback: function (t, options) {
-                                        return t.popup({
-                                            title: `Authorize ${WillPowerUpAppName}`,
-                                            url: './components/authorize-trello/authorize.html',
-                                            height: 120,
-                                            args: {
-                                                callback: "poll_creation",
-                                            },
-                                        });
-                                    },
-                                });
-                            }
-
-                            // add duration button
-                            buttons.push({
-                                icon: './svg/clock-regular.svg',
-                                text: 'Duration',
-                                callback: getDurationButton,
-                            });
-
-                            // add calendar button
-                            buttons.push({
-                                icon: './svg/calendar-regular.svg',
-                                text: 'Calendar',
-                                callback: function (t, options) {
-                                    return t.popup({
-                                        title: `Sync with Google Calendar`,
-                                        url: './components/calendar/calendar-form.html',
-                                        height: 120,
-                                    });
-                                },
-                            });
-
-                            return resolve(buttons);
-                        });
+        return new Promise(async function (resolve) {
+            let googleAPIKeyReady = false;
+            await isGoogleAPIKeyReady(t)
+                .then(function (ready) {
+                    googleAPIKeyReady = ready;
                 });
+
+            let trelloToken = undefined;
+            await getTrelloToken(t)
+                .then(async function (token) {
+                    trelloToken = token;
+                });
+
+            let buttons = [];
+
+            // add buttons that require a Google API key
+            if (googleAPIKeyReady) {
+                // add location button
+                buttons.push({
+                    icon: './svg/map-location-dot-solid.svg',
+                    text: 'Location',
+                    callback: function (t, options) {
+                        return t.popup({
+                            title: 'Location',
+                            url: './components/location/location-card-form.html',
+                            height: 264,
+                        });
+                    }
+                });
+
+                // add calendar button
+                buttons.push({
+                    icon: './svg/calendar-regular.svg',
+                    text: 'Calendar',
+                    callback: function (t, options) {
+                        return t.popup({
+                            title: `Sync with Google Calendar`,
+                            url: './components/calendar/calendar-form.html',
+                            height: 120,
+                        });
+                    },
+                });
+
+                // add contacts button
+                buttons.push({
+                    icon: './svg/address-card-regular.svg',
+                    text: 'Contacts',
+                    callback: function (t, options) {
+                        return t.popup({
+                            title: `Search for a contact`,
+                            url: './components/contacts/contacts-form.html',
+                            height: 120,
+                        });
+                    },
+                });
+            } else {
+                buttons.push({
+                    icon: './svg/map-location-dot-solid.svg',
+                    text: 'Location',
+                    callback: function (t, options) {
+                        return t.popup({
+                            title: 'Google API Key missing',
+                            url: './components/google-api-key-required/google-api-key-required.html',
+                            height: 100,
+                        })
+                    }
+                });
+            }
+
+            // add Poll button
+            if (trelloToken !== undefined) {
+                buttons.push({
+                    icon: './svg/bars-progress-solid.svg',
+                    text: 'Poll',
+                    callback: function (t, options) {
+                        return t.popup({
+                            title: 'Add a poll',
+                            url: './components/poll/poll-form.html',
+                            height: 284,
+                        });
+                    },
+                });
+            } else {
+                buttons.push({
+                    icon: './svg/bars-progress-solid.svg',
+                    text: 'Poll',
+                    callback: function (t, options) {
+                        return t.popup({
+                            title: `Authorize ${WillPowerUpAppName}`,
+                            url: './components/authorize-trello/authorize.html',
+                            height: 120,
+                            args: {
+                                callback: "poll_creation",
+                            },
+                        });
+                    },
+                });
+            }
+
+            // add duration button
+            buttons.push({
+                icon: './svg/clock-regular.svg',
+                text: 'Duration',
+                callback: getDurationButton,
+            });
+
+            return resolve(buttons);
         });
     },
 
@@ -199,17 +219,10 @@ TrelloPowerUp.initialize({
                 },
             }];
 
-            await getLocationBadge(t)
-                .then(function (locationBadge) {
-                    if (locationBadge !== null) {
-                        badges.push(locationBadge);
-                    }
-                });
-
-            await getDurationBadge(t)
-                .then(function (durationBadge) {
-                    if (durationBadge !== null) {
-                        badges.push(durationBadge);
+            await getTimeBadge(t)
+                .then(function (timeBadge) {
+                    if (timeBadge !== null) {
+                        badges.push(timeBadge);
                     }
                 });
 
@@ -228,19 +241,6 @@ TrelloPowerUp.initialize({
                 });
 
             let badges = [];
-            await getDurationDetailBadge(t)
-                .then(function (durationBadge) {
-                    if (durationBadge !== null) {
-                        badges.push(durationBadge);
-                    }
-                });
-
-            await getLocationDetailBadge(t)
-                .then(function (locationBadge) {
-                    if (locationBadge !== null) {
-                        badges.push(locationBadge);
-                    }
-                });
 
             await getCalendarDetailBadges(t, googleAPIServiceInitialized)
                 .then(function (calendarBadges) {
@@ -248,6 +248,13 @@ TrelloPowerUp.initialize({
                         calendarBadges.forEach(function(badge) {
                             badges.push(badge);
                         });
+                    }
+                });
+
+            await getLocationDetailBadge(t)
+                .then(function (locationBadge) {
+                    if (locationBadge !== null) {
+                        badges.push(locationBadge);
                     }
                 });
 

@@ -16,22 +16,44 @@ let locationSectionHasSomethingToShow = function(t) {
     });
 }
 
-export const shouldShowCardSection = function(t) {
+let contactSectionHasSomethingToShow = function(t) {
     return new Promise(function(resolve) {
-        locationSectionHasSomethingToShow(t)
+        t.get('card', 'shared', 'contact')
+            .then(function(contact) {
+                resolve(contact !== undefined);
+            });
+    });
+}
+
+export const shouldShowCardSection = function(t) {
+    return new Promise(async function(resolve) {
+        let show = false;
+
+        await locationSectionHasSomethingToShow(t)
             .then(function(yes) {
-                if (yes) {
-                    resolve(true);
-                } else {
-                    pollSectionHasSomethingToShow(t)
-                        .then(function(yes) {
-                            if (yes) {
-                                resolve(true);
-                            } else {
-                                resolve(null);
-                            }
-                        });
-                }
-            })
+                show = yes;
+            });
+
+        if (show) {
+            resolve(true);
+            return;
+        }
+
+        await contactSectionHasSomethingToShow(t)
+            .then(function(yes) {
+                show = yes;
+            });
+
+        if (show) {
+            resolve(true);
+            return;
+        }
+
+        await pollSectionHasSomethingToShow(t)
+            .then(function(yes) {
+                show = yes;
+            });
+
+        resolve(show);
     });
 }

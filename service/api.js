@@ -61,6 +61,26 @@ export const putScopedCardData = async function(t, cardInput) {
     }
 }
 
+export const putCardDescription = async function(t, id, description) {
+    return new Promise(function(resolve) {
+        getTrelloToken(t)
+            .then(async function(token) {
+                let input = {
+                    desc: description,
+                };
+                sendRequest(buildTrelloRequest(token, `/cards/${id}`, input), "PUT")
+                    .then(async function(card) {
+                        resolve(card);
+                    })
+                    .catch(function(err) {
+                        console.log(err);
+                        resolve(undefined);
+                    })
+            });
+    });
+
+}
+
 export const putCard = async function(t, id, cardInput, hasCardInContext) {
     // check if card namespace data should be updated
     if (hasCardInContext) {

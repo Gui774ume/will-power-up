@@ -22,9 +22,9 @@ This project is a custom Power-Up for my Trello boards. This Power-Up adds the f
 
 ![Import Calendar Events component](documentation/images/import_calendar_events_component.png)
 
-## TODO
+- Integration with Google People API so that you can add your Google contacts as context of a card.
 
-- Integration with Google Contacts to interact with Calendar events and show attendees bios.
+![Google Contact component](documentation/images/contact_component.png)
 
 ## Getting started
 

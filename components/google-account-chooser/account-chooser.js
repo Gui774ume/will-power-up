@@ -1,5 +1,6 @@
 import { WillPowerUpGoogleOAuthClientID } from "../../constants.js";
 import { CALENDAR_DOC, getGoogleAccountToken, PEOPLE_DOC } from "./account-helper.js";
+import { prepareSearchContacts } from "../contacts/contacts.js";
 import {
     toggleCalendarEventMeeting,
     chooseCalendarAndCreateEvent,
@@ -15,7 +16,22 @@ import {
 } from "../calendar/calendar.js";
 
 // googleScopes define the scopes required for the Power-Up
-const googleScopes = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/profile.emails.read';
+const googleScopes = 'https://www.googleapis.com/auth/calendar ' +
+    'https://www.googleapis.com/auth/calendar.events ' +
+    'https://www.googleapis.com/auth/userinfo.profile ' +
+    'https://www.googleapis.com/auth/userinfo.email ' +
+    'https://www.googleapis.com/auth/contacts ' +
+    'https://www.googleapis.com/auth/contacts.readonly ' +
+    'https://www.googleapis.com/auth/user.phonenumbers.read ' +
+    'https://www.googleapis.com/auth/user.organization.read ' +
+    'https://www.googleapis.com/auth/user.gender.read ' +
+    'https://www.googleapis.com/auth/user.emails.read ' +
+    'https://www.googleapis.com/auth/user.birthday.read ' +
+    'https://www.googleapis.com/auth/user.addresses.read ' +
+    'https://www.googleapis.com/auth/directory.readonly ' +
+    'https://www.googleapis.com/auth/profile.agerange.read ' +
+    'https://www.googleapis.com/auth/profile.emails.read ' +
+    'https://www.googleapis.com/auth/profile.language.read';
 
 let addGoogleAccount = document.getElementById('add_google_account');
 let accountList = document.getElementById('account_list');
@@ -185,7 +201,7 @@ let handleAuthResponse = async function(token) {
     // request email, name and photo details
     let userDetails = await gapi.client.people.people.get({
         'resourceName': 'people/me',
-        'personFields': 'emailAddresses,names,photos',
+        'personFields': 'emailAddresses,names,photos,organizations',
     })
 
     // create empty account object to store the new token
@@ -195,6 +211,7 @@ let handleAuthResponse = async function(token) {
         email: "",
         name: "",
         photo: "",
+        organizations: userDetails.result.organizations,
     };
 
     // data sanity check
@@ -333,6 +350,12 @@ let triggerCallback = function(t, selectedEmail) {
                 .then(function() {
                     t.closePopup();
                 })
+            break;
+        case "prepare_search_contacts":
+            prepareSearchContacts(t, selectedEmail)
+                .then(function() {
+                    t.closePopup();
+                });
             break;
     }
 };
